@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-TrivaliaApplication<trivalia>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.trivalia.trivalia.TrivaliaApplication",
+            "projectName": "trivalia",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
