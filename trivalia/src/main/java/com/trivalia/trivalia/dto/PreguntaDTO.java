@@ -100,7 +100,4 @@ public class PreguntaDTO {
         this.imagenURL = imagenURL;
     }
 
-
-
-   
 }

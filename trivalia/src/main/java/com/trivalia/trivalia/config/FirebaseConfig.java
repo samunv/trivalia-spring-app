@@ -1,18 +1,15 @@
 package com.trivalia.trivalia.config;
 
+import java.io.IOException;
+
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.stereotype.Component;
+
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 
 import jakarta.annotation.PostConstruct;
-
-import org.springframework.stereotype.Component;
-
-import java.io.FileInputStream;
-
-import java.io.IOException;
-
-import org.springframework.core.io.ClassPathResource;
 
 @Component
 public class FirebaseConfig {

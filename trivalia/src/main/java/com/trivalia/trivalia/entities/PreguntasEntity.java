@@ -159,7 +159,8 @@ public class PreguntasEntity {
 
     public enum TipoPregunta {
         OPCIONES,
-        ESCRIBIR
+        ESCRIBIR,
+        VF
     }
 
     public enum Dificultad {

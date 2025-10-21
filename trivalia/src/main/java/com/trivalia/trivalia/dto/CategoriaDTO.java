@@ -5,6 +5,7 @@ public class CategoriaDTO {
     private Long id_categoria;
     private String titulo;
     private String imagenURL;
+    private int cantidad_preguntas;
 
     public CategoriaDTO() {
     }
@@ -32,5 +33,15 @@ public class CategoriaDTO {
     public void setImagenURL(String imagenURL) {
         this.imagenURL = imagenURL;
     }
+
+    public int getCantidad_preguntas() {
+        return cantidad_preguntas;
+    }
+
+    public void setCantidad_preguntas(int cantidad_preguntas) {
+        this.cantidad_preguntas = cantidad_preguntas;
+    }
+
+    
 
 }

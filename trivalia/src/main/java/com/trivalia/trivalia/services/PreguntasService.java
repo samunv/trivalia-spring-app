@@ -26,7 +26,23 @@ public class PreguntasService {
     }
 
     public List<PreguntasEntity> obtenerListPreguntas(Long idCategoria, int limite) {
-        List<PreguntasEntity> preguntasList = this.preguntasRepository.findPreguntasPorCategoria(idCategoria);
+        List<PreguntasEntity> preguntasList = this.preguntasRepository.findByCategoriaIdCategoria(idCategoria);
+        Collections.shuffle(preguntasList);
+        if(preguntasList.size()>limite){
+            preguntasList = preguntasList.subList(0, limite);
+        }
+        return preguntasList;
+
+    }
+
+    public List<PreguntasEntity> obtenerListPreguntas(Long idCategoria) {
+        List<PreguntasEntity> preguntasList = this.preguntasRepository.findByCategoriaIdCategoria(idCategoria);
+        return preguntasList;
+
+    }
+
+    public List<PreguntasEntity> obtenerListPreguntasAleatorias(int limite) {
+        List<PreguntasEntity> preguntasList = this.preguntasRepository.findAll();
         Collections.shuffle(preguntasList);
         if(preguntasList.size()>limite){
             preguntasList = preguntasList.subList(0, limite);
