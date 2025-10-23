@@ -63,8 +63,8 @@ public class PreguntasService {
         pregunta.setDificultad(dto.getDificultad());
         pregunta.setImagenURL(dto.getImagenURL());
 
-        if (this.obtenerCantidadPreguntasPorCategoria(dto.getId_categoria()) <= 15) {
-            CategoriaEntity categoria = this.buscarCategoria(dto.getId_categoria()).orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+        if (this.obtenerCantidadPreguntasPorCategoria(dto.getIdCategoria()) <= 15) {
+            CategoriaEntity categoria = this.buscarCategoria(dto.getIdCategoria()).orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
             pregunta.setCategoria(categoria);
             return preguntasRepository.save(pregunta);
         } else {

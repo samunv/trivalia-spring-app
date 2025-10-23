@@ -5,8 +5,8 @@ import com.trivalia.trivalia.entities.PreguntasEntity.TipoPregunta;
 
 public class PreguntaDTO {
 
-    private Long id_pregunta;
-    private Long id_categoria;
+    private Long idPregunta;
+    private Long idCategoria;
     private String pregunta;
     private String opcion_a;
     private String opcion_b;
@@ -20,20 +20,20 @@ public class PreguntaDTO {
 
     }
 
-    public Long getId_pregunta() {
-        return id_pregunta;
+    public Long getIdPregunta() {
+        return idPregunta;
     }
 
-    public void setId_pregunta(Long id_pregunta) {
-        this.id_pregunta = id_pregunta;
+    public void setIdPregunta(Long idPregunta) {
+        this.idPregunta = idPregunta;
     }
 
-    public Long getId_categoria() {
-        return id_categoria;
+    public Long getIdCategoria() {
+        return idCategoria;
     }
 
-    public void setId_categoria(Long id_categoria) {
-        this.id_categoria = id_categoria;
+    public void setIdCategoria(Long idCategoria) {
+        this.idCategoria = idCategoria;
     }
 
     public String getPregunta() {
