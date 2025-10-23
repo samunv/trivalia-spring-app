@@ -66,6 +66,23 @@ public class PreguntasController {
         return resultado;
     }
 
+    @GetMapping("obtener-vista-previa/{id_categoria}")
+    public List<PreguntaDTO> obtenerVistaPrevia(@PathVariable Long id_categoria) {
+        List<PreguntasEntity> entityList = this.ps.obtenerListPreguntas(id_categoria);
+
+        List<PreguntaDTO> vistaPrevia = entityList.stream().map(e -> {
+            PreguntaDTO dto = new PreguntaDTO();
+            dto.setPregunta(e.getPregunta());
+            dto.setImagenURL(e.getImagenURL());
+            dto.setTipo_pregunta(e.getTipo_pregunta());
+            dto.setDificultad(e.getDificultad());
+            return dto;
+        }).toList();
+
+        return vistaPrevia;
+
+    }
+
     @PostMapping("/crear")
     public Map<String, String> crearPregunta(@RequestBody PreguntaDTO dto) {
         PreguntasEntity nuevaPregunta = this.ps.crearPregunta(dto);

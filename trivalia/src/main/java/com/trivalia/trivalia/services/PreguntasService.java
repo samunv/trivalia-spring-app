@@ -28,7 +28,7 @@ public class PreguntasService {
     public List<PreguntasEntity> obtenerListPreguntas(Long idCategoria, int limite) {
         List<PreguntasEntity> preguntasList = this.preguntasRepository.findByCategoriaIdCategoria(idCategoria);
         Collections.shuffle(preguntasList);
-        if(preguntasList.size()>limite){
+        if (preguntasList.size() > limite) {
             preguntasList = preguntasList.subList(0, limite);
         }
         return preguntasList;
@@ -44,7 +44,7 @@ public class PreguntasService {
     public List<PreguntasEntity> obtenerListPreguntasAleatorias(int limite) {
         List<PreguntasEntity> preguntasList = this.preguntasRepository.findAll();
         Collections.shuffle(preguntasList);
-        if(preguntasList.size()>limite){
+        if (preguntasList.size() > limite) {
             preguntasList = preguntasList.subList(0, limite);
         }
         return preguntasList;
@@ -52,6 +52,7 @@ public class PreguntasService {
     }
 
     public PreguntasEntity crearPregunta(PreguntaDTO dto) {
+
         PreguntasEntity pregunta = new PreguntasEntity();
         pregunta.setPregunta(dto.getPregunta());
         pregunta.setRespuesta_correcta(dto.getRespuesta_correcta());
@@ -62,14 +63,23 @@ public class PreguntasService {
         pregunta.setDificultad(dto.getDificultad());
         pregunta.setImagenURL(dto.getImagenURL());
 
-        CategoriaEntity categoria = this.buscarCategoria(dto.getId_categoria()).orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
-        pregunta.setCategoria(categoria);
-        return preguntasRepository.save(pregunta);
+        if (this.obtenerCantidadPreguntasPorCategoria(dto.getId_categoria()) <= 15) {
+            CategoriaEntity categoria = this.buscarCategoria(dto.getId_categoria()).orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+            pregunta.setCategoria(categoria);
+            return preguntasRepository.save(pregunta);
+        } else {
+            throw new RuntimeException("No se pueden añadir más preguntas a esta categoría");
+        }
+
     }
 
     public Optional<CategoriaEntity> buscarCategoria(Long idCategoria) {
         return this.categoriaRepository.findById(idCategoria);
 
+    }
+
+    public int obtenerCantidadPreguntasPorCategoria(Long idCategoria) {
+        return this.preguntasRepository.findByCategoriaIdCategoria(idCategoria).size();
     }
 
 }
