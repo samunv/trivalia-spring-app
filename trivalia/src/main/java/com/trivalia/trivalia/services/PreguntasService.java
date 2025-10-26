@@ -4,8 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.trivalia.trivalia.dto.PreguntaDTO;
@@ -27,7 +25,7 @@ public class PreguntasService {
 
     public List<PreguntasEntity> obtenerListPreguntas(Long idCategoria, int limite) {
         List<PreguntasEntity> preguntasList = this.preguntasRepository.findByCategoriaIdCategoria(idCategoria);
-        Collections.shuffle(preguntasList);
+        //Collections.shuffle(preguntasList);
         if (preguntasList.size() > limite) {
             preguntasList = preguntasList.subList(0, limite);
         }
@@ -80,6 +78,12 @@ public class PreguntasService {
 
     public int obtenerCantidadPreguntasPorCategoria(Long idCategoria) {
         return this.preguntasRepository.findByCategoriaIdCategoria(idCategoria).size();
+    }
+
+    public String obtenerRespuestaCorrecta(Long idPregunta) {
+        PreguntasEntity entity = this.preguntasRepository.findById(idPregunta).orElseThrow(() -> new RuntimeException("No se ha encontrado"));
+        String respuestaCorrecta = entity.getRespuesta_correcta();
+        return respuestaCorrecta;
     }
 
 }

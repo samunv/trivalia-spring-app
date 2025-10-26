@@ -26,25 +26,42 @@ public class PreguntasController {
         this.ps = ps;
     }
 
-    @GetMapping("obtener/{id_categoria}/{limite}")
+    @GetMapping("/obtener/{id_categoria}/{limite}")
     public List<PreguntaDTO> obtenerPreguntasPorCategoria(@PathVariable Long id_categoria, @PathVariable int limite) {
         List<PreguntasEntity> entityList = this.ps.obtenerListPreguntas(id_categoria, limite);
-        List<PreguntaDTO> resultado = entityList.stream().
-                map(entity -> PreguntaMapper.INSTANCE.toDTO(entity)).toList();
+        List<PreguntaDTO> resultado = entityList.stream()
+                .map(entity -> {
+                    PreguntaDTO dto = PreguntaMapper.INSTANCE.toDTO(entity);
+                    dto.setRespuesta_correcta(null); // eliminar respuesta correcta
+                    return dto;
+                })
+                .toList();
         return resultado;
     }
 
     @GetMapping("/aleatorias/{limite}")
     public List<PreguntaDTO> obtenerPreguntasAleatorias(@PathVariable int limite) {
         List<PreguntasEntity> entityList = this.ps.obtenerListPreguntasAleatorias(limite);
-        List<PreguntaDTO> resultado = entityList.stream().map(entity -> PreguntaMapper.INSTANCE.toDTO(entity)).toList();
+        List<PreguntaDTO> resultado = entityList.stream()
+                .map(entity -> {
+                    PreguntaDTO dto = PreguntaMapper.INSTANCE.toDTO(entity);
+                    dto.setRespuesta_correcta(null); // eliminar respuesta correcta
+                    return dto;
+                })
+                .toList();
         return resultado;
     }
 
-    @GetMapping("obtener-vista-previa/{id_categoria}")
+    @GetMapping("/obtener-vista-previa/{id_categoria}")
     public List<PreguntaDTO> obtenerVistaPrevia(@PathVariable Long id_categoria) {
         List<PreguntasEntity> entityList = this.ps.obtenerListPreguntas(id_categoria);
-        List<PreguntaDTO> vistaPrevia = entityList.stream().map(entity -> PreguntaMapper.INSTANCE.toDTO(entity) ).toList();
+        List<PreguntaDTO> vistaPrevia = entityList.stream()
+                .map(entity -> {
+                    PreguntaDTO dto = PreguntaMapper.INSTANCE.toDTO(entity);
+                    dto.setRespuesta_correcta(null); // eliminar respuesta correcta
+                    return dto;
+                })
+                .toList();
         return vistaPrevia;
 
     }
@@ -55,6 +72,13 @@ public class PreguntasController {
         Map<String, String> mensajeMap = new HashMap<>();
         mensajeMap.put("mensaje", "Pregunta creada: " + nuevaPregunta.toString());
         return mensajeMap;
+    }
+
+    @GetMapping("/obtener-respuesta-correcta/{idPregunta}")
+    public Map<String, String> obtenerRespuestaCorrecta(@PathVariable Long idPregunta) {
+        Map<String, String> respuestaMap= new HashMap<>();
+        respuestaMap.put("respuesta_correcta", this.ps.obtenerRespuestaCorrecta(idPregunta));   
+        return respuestaMap;
     }
 
 }

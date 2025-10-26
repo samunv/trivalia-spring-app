@@ -153,9 +153,12 @@ public class PreguntasEntity {
         return dificultad;
     }
 
+
+
     public void setDificultad(Dificultad dificultad) {
         this.dificultad = dificultad;
     }
+
 
     public enum TipoPregunta {
         OPCIONES,
