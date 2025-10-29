@@ -1,8 +1,10 @@
 package com.trivalia.trivalia.controllers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -74,10 +76,29 @@ public class PreguntasController {
         return mensajeMap;
     }
 
+    @PostMapping("/obtener-dificiles")
+    public List<PreguntaDTO> obtenerDificiles(@RequestBody Long[] arrayIdPreguntas) {
+        List<PreguntasEntity> entityList = new ArrayList<>();
+        for (Long idPregunta : arrayIdPreguntas) {
+            entityList.add(this.ps.obtenerPreguntaDificil(idPregunta));
+        }
+
+        List<PreguntaDTO> dtoList = entityList.stream().map((entity) -> {
+            PreguntaDTO dto = PreguntaMapper.INSTANCE.toDTO(entity);
+            if (dto != null) {
+                dto.setRespuesta_correcta(null);
+            }
+
+            return dto;
+        }).filter(dto -> dto != null).toList();
+
+        return dtoList;
+    }
+
     @GetMapping("/obtener-respuesta-correcta/{idPregunta}")
     public Map<String, String> obtenerRespuestaCorrecta(@PathVariable Long idPregunta) {
-        Map<String, String> respuestaMap= new HashMap<>();
-        respuestaMap.put("respuesta_correcta", this.ps.obtenerRespuestaCorrecta(idPregunta));   
+        Map<String, String> respuestaMap = new HashMap<>();
+        respuestaMap.put("respuesta_correcta", this.ps.obtenerRespuestaCorrecta(idPregunta));
         return respuestaMap;
     }
 

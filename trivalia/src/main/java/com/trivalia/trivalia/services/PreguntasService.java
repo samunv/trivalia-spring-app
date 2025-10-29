@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.trivalia.trivalia.dto.PreguntaDTO;
 import com.trivalia.trivalia.entities.CategoriaEntity;
 import com.trivalia.trivalia.entities.PreguntasEntity;
+import com.trivalia.trivalia.entities.PreguntasEntity.Dificultad;
 import com.trivalia.trivalia.repositories.CategoriaRepository;
 import com.trivalia.trivalia.repositories.PreguntasRepository;
 
@@ -84,6 +85,14 @@ public class PreguntasService {
         PreguntasEntity entity = this.preguntasRepository.findById(idPregunta).orElseThrow(() -> new RuntimeException("No se ha encontrado"));
         String respuestaCorrecta = entity.getRespuesta_correcta();
         return respuestaCorrecta;
+    }
+
+    public PreguntasEntity obtenerPreguntaDificil(Long idPregunta) {
+        PreguntasEntity entity = this.preguntasRepository.findById(idPregunta).orElseThrow(() -> new RuntimeException("Error al obtener pregunta"));
+        if (entity.getDificultad().equals(Dificultad.DIFICIL)) {
+            return entity;
+        }
+        return null;
     }
 
 }
