@@ -6,8 +6,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.trivalia.trivalia.dto.CategoriaDTO;
 import com.trivalia.trivalia.entities.CategoriaEntity;
 import com.trivalia.trivalia.entities.PreguntasEntity;
+import com.trivalia.trivalia.mappers.CategoriaMapper;
 import com.trivalia.trivalia.repositories.CategoriaRepository;
 
 @Service
@@ -21,15 +23,19 @@ public class CategoriaService {
         this.preguntaService = preguntaService;
     }
 
-    public List<CategoriaEntity> obtenerCategorias() {
+    public List<CategoriaDTO> obtenerCategorias() {
         List<CategoriaEntity> randomCategoriasList = new ArrayList<>(this.categoriaRepository.findAll());
         Collections.shuffle(randomCategoriasList);
-        return randomCategoriasList;
+        List<CategoriaDTO> dtoList = randomCategoriasList.stream().map(entity
+                -> CategoriaMapper.INSTANCE.toDTO(entity)
+        ).toList();
+        return dtoList;
     }
 
-    public CategoriaEntity obtenerCategoriaPorId(Long idCategoria) {
-        CategoriaEntity categoria = this.categoriaRepository.findById(idCategoria).orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
-        return categoria;
+    public CategoriaDTO obtenerCategoriaPorId(Long idCategoria) {
+        CategoriaEntity categoriaEntity = this.categoriaRepository.findById(idCategoria).orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+        CategoriaDTO dto = CategoriaMapper.INSTANCE.toDTO(categoriaEntity);
+        return dto;
     }
 
     public int ObtenerCantidadPreguntas(Long idCategoria) {

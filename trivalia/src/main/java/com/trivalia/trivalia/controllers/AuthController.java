@@ -32,7 +32,7 @@ public class AuthController {
             String token = jwt.generarToken(decodedToken.getUid());
 
             Map<String, String> tokenMap = new HashMap<>();
-            tokenMap.put("token", token);
+            tokenMap.put("token", token);   
 
             return tokenMap;
 

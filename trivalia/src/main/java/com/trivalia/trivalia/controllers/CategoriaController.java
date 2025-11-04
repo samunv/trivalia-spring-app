@@ -1,24 +1,16 @@
 package com.trivalia.trivalia.controllers;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Map;
 import java.util.List;
 
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.trivalia.trivalia.dto.CategoriaDTO;
 import com.trivalia.trivalia.entities.CategoriaEntity;
 import com.trivalia.trivalia.mappers.CategoriaMapper;
 import com.trivalia.trivalia.services.CategoriaService;
-
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
-import com.trivalia.trivalia.dto.CategoriaDTO;
 
 @RestController
 @RequestMapping("api/categorias")
@@ -34,20 +26,12 @@ public class CategoriaController {
 
     @GetMapping("/todo")
     public List<CategoriaDTO> obtenerCategorias() {
-        List<CategoriaEntity> entityList = this.cs.obtenerCategorias();
-        System.out.println("Accediendo a /categorias/todo");
-        List<CategoriaDTO> dtoList = entityList.stream().map(entity
-                -> CategoriaMapper.INSTANCE.toDTO(entity)
-        ).toList();
-
-        return dtoList;
+        return this.cs.obtenerCategorias();
     }
 
     @GetMapping("/obtener/{id_categoria}")
     public CategoriaDTO obtenerCategoriaInfo(@PathVariable Long id_categoria) {
-        CategoriaEntity entity = this.cs.obtenerCategoriaPorId(id_categoria);
-        CategoriaDTO dto = CategoriaMapper.INSTANCE.toDTO(entity);
-        return dto;
+        return this.cs.obtenerCategoriaPorId(id_categoria);
     }
 
 }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,19 +53,19 @@ public class PreguntasController {
         return resultado;
     }
 
-    @GetMapping("/obtener-vista-previa/{id_categoria}")
-    public List<PreguntaDTO> obtenerVistaPrevia(@PathVariable Long id_categoria) {
-        List<PreguntasEntity> entityList = this.ps.obtenerListPreguntas(id_categoria);
-        List<PreguntaDTO> vistaPrevia = entityList.stream()
-                .map(entity -> {
-                    PreguntaDTO dto = PreguntaMapper.INSTANCE.toDTO(entity);
-                    dto.setRespuesta_correcta(null); // eliminar respuesta correcta
-                    return dto;
-                })
-                .toList();
-        return vistaPrevia;
+    // @GetMapping("/obtener-vista-previa/{id_categoria}")
+    // public List<PreguntaDTO> obtenerVistaPrevia(@PathVariable Long id_categoria) {
+    //     List<PreguntasEntity> entityList = this.ps.obtenerListPreguntas(id_categoria);
+    //     List<PreguntaDTO> vistaPrevia = entityList.stream()
+    //             .map(entity -> {
+    //                 PreguntaDTO dto = PreguntaMapper.INSTANCE.toDTO(entity);
+    //                 dto.setRespuesta_correcta(null); // eliminar respuesta correcta
+    //                 return dto;
+    //             })
+    //             .toList();
+    //     return vistaPrevia;
 
-    }
+    // }
 
     @PostMapping("/crear")
     public Map<String, String> crearPregunta(@RequestBody PreguntaDTO dto) {
