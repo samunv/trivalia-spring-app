@@ -29,28 +29,12 @@ public class PreguntasController {
 
     @GetMapping("/obtener/{id_categoria}/{limite}")
     public List<PreguntaDTO> obtenerPreguntasPorCategoria(@PathVariable Long id_categoria, @PathVariable int limite) {
-        List<PreguntasEntity> entityList = this.ps.obtenerListPreguntas(id_categoria, limite);
-        List<PreguntaDTO> resultado = entityList.stream()
-                .map(entity -> {
-                    PreguntaDTO dto = PreguntaMapper.INSTANCE.toDTO(entity);
-                    dto.setRespuesta_correcta(null); // eliminar respuesta correcta
-                    return dto;
-                })
-                .toList();
-        return resultado;
+        return this.ps.obtenerListPreguntas(id_categoria, limite);
     }
 
     @GetMapping("/aleatorias/{limite}")
     public List<PreguntaDTO> obtenerPreguntasAleatorias(@PathVariable int limite) {
-        List<PreguntasEntity> entityList = this.ps.obtenerListPreguntasAleatorias(limite);
-        List<PreguntaDTO> resultado = entityList.stream()
-                .map(entity -> {
-                    PreguntaDTO dto = PreguntaMapper.INSTANCE.toDTO(entity);
-                    dto.setRespuesta_correcta(null); // eliminar respuesta correcta
-                    return dto;
-                })
-                .toList();
-        return resultado;
+        return this.ps.obtenerListPreguntasAleatorias(limite);
     }
 
     // @GetMapping("/obtener-vista-previa/{id_categoria}")
@@ -64,9 +48,7 @@ public class PreguntasController {
     //             })
     //             .toList();
     //     return vistaPrevia;
-
     // }
-
     @PostMapping("/crear")
     public Map<String, String> crearPregunta(@RequestBody PreguntaDTO dto) {
         PreguntasEntity nuevaPregunta = this.ps.crearPregunta(dto);
@@ -99,6 +81,11 @@ public class PreguntasController {
         Map<String, String> respuestaMap = new HashMap<>();
         respuestaMap.put("respuesta_correcta", this.ps.obtenerRespuestaCorrecta(idPregunta));
         return respuestaMap;
+    }
+
+    @GetMapping("/obtener-pregunta-ia")
+    public PreguntaDTO obtenerPreguntaIA() {
+        return this.ps.generarPreguntaIA();
     }
 
 }

@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.trivalia.trivalia.dto.CategoriaDTO;
-import com.trivalia.trivalia.entities.CategoriaEntity;
-import com.trivalia.trivalia.mappers.CategoriaMapper;
 import com.trivalia.trivalia.services.CategoriaService;
 
 @RestController
