@@ -17,7 +17,7 @@ public class PreguntaIAService {
     @Value("${ia.api.key}")
     private String IA_API_KEY;
 
-     public PreguntaDTO generarPreguntaIA() {
+    public PreguntaDTO generarPreguntaIA() {
         String PROMPT = this.obtenerPrompt();
         this.clienteGemini = Client.builder().apiKey(IA_API_KEY).build();
 
@@ -55,10 +55,11 @@ public class PreguntaIAService {
     }
 
     private String obtenerPrompt() {
-        return "Genera una pregunta de trivia de cualquier tema (Por ejemplo equipos de fútbol, música general, ciencia, naturaleza, etc.) en formato JSON con las siguientes claves: "
+        return "Genera una pregunta (considerablemente difícil para la media de personas) \n"
+                + "de trivia de cualquier tema (Por ejemplo equipos de fútbol, música general, ciencia, naturaleza, etc.) en formato JSON con las siguientes claves: "
                 + "{ \"pregunta\": \"\", \"opcion_a\": \"\", \"opcion_b\": \"\", \"opcion_c\": \"\", "
                 + "\"respuesta_correcta\": \"\", \"tipo_pregunta\": \"OPCIONES\", \"dificultad\": \"DIFICIL\", \"imagenURL\": \"\" } "
-                + "Llena cada campo correctamente. Cada caracter de La respuesta correcta debe coincidir exactamente con los de una de las opciones (opcion_a, opcion_b o opcion_c). No se debe incluir ningun texto más en la respuesta, solamente el JSON exacto.";
+                + "Llena cada campo correctamente. Cada caracter de la respuesta correcta debe coincidir exactamente con los de una de las opciones (opcion_a, opcion_b o opcion_c). No se debe incluir ningun texto más en la respuesta, solamente el JSON exacto. No debe tener saltos de línea. Considera consultar información verídica para generar una pregunta correcta, cuya respuesta correcta sea verdadera y totalmente comprobada";
     }
 
 }

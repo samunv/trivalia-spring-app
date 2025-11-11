@@ -5,9 +5,13 @@ services:
     image: mysql:8.0.43
     container_name: trivalia-db
     restart: always
+    env_file:
+      - .env
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: suspect
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
       - "3307:3306"
     volumes:
@@ -19,16 +23,19 @@ services:
       retries: 10
 
   trivalia:
-    build: trivalia
+    #build: trivalia
+    image: samunv/trivalia-spring-boot-app:latest
     container_name: trivalia-spring-app
     restart: always
     ports:
       - "8080:8080"
+    env_file:
+      - .env
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://trivalia-db:3306/suspect?createDatabaseIfNotExist=true&ServerTimezone=UTC
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-      IA_API_KEY: AIzaSyBWa13o2xQmoOeIXjou-2---B0ZF_3oIpY
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      IA_API_KEY: ${API_KEY}
     depends_on:
       - trivalia-db
            
