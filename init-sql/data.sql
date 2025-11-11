@@ -37,8 +37,12 @@ CREATE TABLE
         `id_categoria` bigint NOT NULL AUTO_INCREMENT,
         `imagenurl` varchar(255) NOT NULL,
         `titulo` varchar(255) NOT NULL,
+        `codigo` varchar(255) NOT NULL,
+        `preguntas_acertadas` int NOT NULL,
+        `preguntas_falladas` int NOT NULL,
+        `uid_usuario` varchar(255) NOT NULL,
         PRIMARY KEY (`id_categoria`)
-    ) ENGINE = InnoDB AUTO_INCREMENT = 10 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+    ) ENGINE = InnoDB AUTO_INCREMENT = 11 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -55,35 +59,104 @@ VALUES
     (
         1,
         'https://infonegocios.info/content/images/2024/02/20/440026/conversions/equipos-futbol-inversion-europa-medium-size.jpg',
-        'Equipos de Fútbol'
+        'Equipos de Fútbol',
+        '',
+        0,
+        0,
+        ''
     ),
     (
         2,
         'https://www.autopista.es/uploads/s1/57/58/02/1/article-significado-logotipos-nombres-marcas-coches-primera-parte-audi-bmw-ferrrari-5980441e9095f.jpeg',
-        'Marcas de Coches'
+        'Marcas de Coches',
+        '',
+        0,
+        0,
+        ''
     ),
     (
         3,
         'https://elagentecine.cl/wp-content/uploads/2025/03/40-personajes-de-Disney.jpg',
-        'Personajes de Disney'
+        'Personajes de Disney',
+        '',
+        0,
+        0,
+        ''
     ),
     (
         4,
         'https://e1.pxfuel.com/desktop-wallpaper/330/3/desktop-wallpaper-europe-map-flags-europe-map.jpg',
-        'Banderas del Mundo'
+        'Banderas del Mundo',
+        '',
+        0,
+        0,
+        ''
     ),
     (
         6,
         'https://www.sitecentre.com.au/uploads/2021/07/famous-logo-designers-what-they-got-right-1000x1000.jpg',
-        'Adivina el Logo'
+        'Adivina el Logo',
+        '',
+        0,
+        0,
+        ''
     ),
     (
         9,
         'https://editorial.uefa.com/resources/0285-18f0344d0211-ad1d1162342f-1000/fbl-euro-2024-qualifer-svk-por.jpeg',
-        'Futbolistas'
+        'Futbolistas',
+        '',
+        0,
+        0,
+        ''
+    ),
+    (
+        10,
+        'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEggh1jCqPj1cReMnUqwsAu8hn7mU5Yl2zct2E1lfnjh2SW8-MBofS-AwnjJhVl0PyEjjQwdmxQXGLxN8lAGvbO-w5G3vpJ7I6bykuYS33Mj-ttjn-7h-3FQzyL1BNoBxav-XUYfjwnMr_lr/s1600/php-code.jpg',
+        'Programación',
+        '',
+        0,
+        0,
+        ''
     );
 
 /*!40000 ALTER TABLE `categorias` ENABLE KEYS */;
+
+UNLOCK TABLES;
+
+--
+-- Table structure for table `partidas`
+--
+DROP TABLE IF EXISTS `partidas`;
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+
+/*!50503 SET character_set_client = utf8mb4 */;
+
+CREATE TABLE
+    `partidas` (
+        `id_partida` bigint NOT NULL AUTO_INCREMENT,
+        `codigo` varchar(255) NOT NULL,
+        `preguntas_acertadas` int NOT NULL,
+        `preguntas_falladas` int NOT NULL,
+        `uid_usuario` varchar(255) NOT NULL,
+        `id_categoria` bigint NOT NULL,
+        `estrellas_ganadas` int NOT NULL,
+        PRIMARY KEY (`id_partida`),
+        KEY `FKjwcbmcpjq1en53o3ic9c10jxx` (`id_categoria`),
+        CONSTRAINT `FKjwcbmcpjq1en53o3ic9c10jxx` FOREIGN KEY (`id_categoria`) REFERENCES `categorias` (`id_categoria`)
+    ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `partidas`
+--
+LOCK TABLES `partidas` WRITE;
+
+/*!40000 ALTER TABLE `partidas` DISABLE KEYS */;
+
+/*!40000 ALTER TABLE `partidas` ENABLE KEYS */;
 
 UNLOCK TABLES;
 
@@ -108,8 +181,7 @@ CREATE TABLE
         `tipo_pregunta` enum ('ESCRIBIR', 'OPCIONES', 'VERDADERO_FALSO', 'VF') NOT NULL,
         `pregunta` varchar(255) NOT NULL,
         `dificultad` enum ('DIFICIL', 'FACIL', 'MEDIO') NOT NULL,
-        `sonidourl` varchar(255) DEFAULT NULL,
-        `hay_sonido` bit (1) DEFAULT NULL,
+        `pregunta_ganada` enum ('NO', 'SI') NOT NULL,
         PRIMARY KEY (`id_pregunta`),
         KEY `FKpdyyq7alsnjeernf18d12hyr7` (`id_categoria`),
         CONSTRAINT `FKpdyyq7alsnjeernf18d12hyr7` FOREIGN KEY (`id_categoria`) REFERENCES `categorias` (`id_categoria`),
@@ -122,7 +194,7 @@ CREATE TABLE
                 )
             )
         )
-    ) ENGINE = InnoDB AUTO_INCREMENT = 45 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+    ) ENGINE = InnoDB AUTO_INCREMENT = 49 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -142,13 +214,12 @@ VALUES
         'https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/893px-Real_Madrid_CF.svg.png',
         'Barcelona',
         'Atlético de Madrid',
-        'Sevilla',
+        'Real Madrid',
         'Real Madrid',
         'OPCIONES',
         '¿Qué equipo es el de la imagen?',
         'FACIL',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         4,
@@ -161,8 +232,7 @@ VALUES
         'ESCRIBIR',
         'Escribe el país al que pertenece la bandera:',
         'DIFICIL',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         2,
@@ -175,8 +245,7 @@ VALUES
         'ESCRIBIR',
         'El logo de la imagen pertenece a...',
         'FACIL',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         4,
@@ -189,8 +258,7 @@ VALUES
         'OPCIONES',
         '¿De qué país es esta bandera?',
         'FACIL',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         4,
@@ -203,8 +271,7 @@ VALUES
         'OPCIONES',
         '¿De qué país es la bandera?',
         'MEDIO',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         4,
@@ -217,8 +284,7 @@ VALUES
         'ESCRIBIR',
         'Existe una bandera muy parecida a la de Puerto Rico, ¿Sabrías escribir cuál?',
         'MEDIO',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         6,
@@ -231,8 +297,7 @@ VALUES
         'ESCRIBIR',
         'Escribe a que plataforma pertenece el logo',
         'FACIL',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         6,
@@ -245,8 +310,7 @@ VALUES
         'OPCIONES',
         'A qué empresa pertenece el logo',
         'MEDIO',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         6,
@@ -259,8 +323,7 @@ VALUES
         'OPCIONES',
         'A qué cadena de comida rápida pertenece este logo',
         'MEDIO',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         6,
@@ -273,8 +336,7 @@ VALUES
         'ESCRIBIR',
         'Escribe el nombre del fabricante de móviles de China que tiene este logo: ',
         'DIFICIL',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         6,
@@ -287,8 +349,7 @@ VALUES
         'OPCIONES',
         'La montaña de la imagen aparece representada en un logo muy icónico, ¿sabrías en cual?',
         'DIFICIL',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         6,
@@ -301,8 +362,7 @@ VALUES
         'ESCRIBIR',
         'La marca famosa de una fruta mordida se llama...',
         'FACIL',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         2,
@@ -315,8 +375,7 @@ VALUES
         'ESCRIBIR',
         'Un logo con un óvalo azul y letras blancas corresponde a…',
         'FACIL',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         2,
@@ -329,8 +388,7 @@ VALUES
         'OPCIONES',
         '¿Qué fabricante japonés es el del logo?',
         'MEDIO',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         2,
@@ -343,8 +401,7 @@ VALUES
         'ESCRIBIR',
         'El coche de la silueta pertenece a un modelo de Lamborghini, en concreto a...',
         'MEDIO',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         2,
@@ -357,8 +414,7 @@ VALUES
         'OPCIONES',
         'Una de las siguientes marcas no pertenece al grupo Volkswagen',
         'MEDIO',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         2,
@@ -371,8 +427,7 @@ VALUES
         'OPCIONES',
         'Es una marca de coches italiana',
         'MEDIO',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         2,
@@ -385,8 +440,7 @@ VALUES
         'ESCRIBIR',
         'Toyota tiene una marca de lujo llamada... ',
         'DIFICIL',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         2,
@@ -399,8 +453,7 @@ VALUES
         'OPCIONES',
         '¿Cuál es el eslogan de BMW?',
         'MEDIO',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         2,
@@ -413,8 +466,7 @@ VALUES
         'OPCIONES',
         '¿Qué fabricante produce un modelo 911?',
         'FACIL',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         3,
@@ -427,8 +479,7 @@ VALUES
         'ESCRIBIR',
         '¿Qué fruta muerde Blancanieves?',
         'MEDIO',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         9,
@@ -441,8 +492,7 @@ VALUES
         'VF',
         'Messi tiene más balones de oro que Maradona y Cristiano juntos',
         'FACIL',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         9,
@@ -455,8 +505,7 @@ VALUES
         'OPCIONES',
         '¿Qué delantero brasileño es apodado “O Fenômeno”?',
         'MEDIO',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         9,
@@ -467,10 +516,9 @@ VALUES
         '',
         'Ronaldinho',
         'ESCRIBIR',
-        'Qué jugador brasileño ganó el Balón de Oro en 2005 y 2006',
+        'Qué jugador brasileño ganó el Balón de Oro en 2005 ',
         'MEDIO',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         9,
@@ -479,12 +527,11 @@ VALUES
         'Verdadero',
         'Falso',
         '',
-        'Verdadero',
+        'falso',
         'VF',
         'Neymar nunca ha ganado la Champions League',
         'FACIL',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         9,
@@ -494,11 +541,10 @@ VALUES
         'Pirlo',
         'Francesco Totti',
         'Francesco Totti',
-        'VF',
+        'OPCIONES',
         '¿Qué jugador italiano es conocido como “Il Divin Codino”?',
         'MEDIO',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         9,
@@ -508,11 +554,10 @@ VALUES
         'Steven Gerrard',
         'David Beckham',
         'David Beckham',
-        'VF',
+        'OPCIONES',
         '¿Qué jugador inglés es famoso por su tiro libre en la Euro 2004 contra Grecia?',
         'MEDIO',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         6,
@@ -525,8 +570,7 @@ VALUES
         'VF',
         'Este fue el primer logo de Apple',
         'MEDIO',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         6,
@@ -539,8 +583,7 @@ VALUES
         'OPCIONES',
         '¿A qué aerolínea pertenece este logo?',
         'DIFICIL',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         6,
@@ -553,8 +596,7 @@ VALUES
         'ESCRIBIR',
         'La plataforma con este logo compite principalmente con',
         'MEDIO',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         3,
@@ -567,11 +609,10 @@ VALUES
         'ESCRIBIR',
         'Esta princesa perdió su zapatilla de cristal',
         'FACIL',
-        NULL,
-        NULL
+        'NO'
     ),
     (
-        6,
+        3,
         34,
         'https://s1.elespanol.com/2018/08/27/social/humor-el_rey_leon-la_jungla_-_social_333478673_94773643_1706x960.jpg',
         'verdadero',
@@ -581,11 +622,10 @@ VALUES
         'VF',
         'Simba es hijo de Mufasa',
         'MEDIO',
-        NULL,
-        NULL
+        'NO'
     ),
     (
-        6,
+        3,
         35,
         'https://images.ecestaticos.com/DnosZ-m66QPCjPAy5aImVqjhU-I=/0x0:991x705/992x706/filters:fill(white):format(jpg)/f.elconfidencial.com%2Foriginal%2Fa97%2Fced%2Fd85%2Fa97cedd851ee031f65237a67c9ba5363.jpg',
         'Maléfica',
@@ -595,11 +635,10 @@ VALUES
         'OPCIONES',
         '¿Quién es el villano de La Bella Durmiente?',
         'MEDIO',
-        NULL,
-        NULL
+        'NO'
     ),
     (
-        6,
+        3,
         36,
         'https://uvn-brightspot.s3.amazonaws.com/assets/vixes/btg/101-dalmatas-6.jpg',
         'Cruella de Vil',
@@ -609,8 +648,7 @@ VALUES
         'OPCIONES',
         '¿Qué villana aparece en 101 Dálmatas?',
         'MEDIO',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         1,
@@ -623,13 +661,12 @@ VALUES
         'VF',
         'El Manchester United es conocido como \'The Red Devils\'',
         'MEDIO',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         1,
         38,
-        'https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_badge.svg',
+        'https://fotografias.antena3.com/clipping/cmsimages01/2016/02/09/47135A3E-6716-4C2F-A819-807FDDCD49AE/58.jpg',
         '',
         '',
         '',
@@ -637,8 +674,7 @@ VALUES
         'ESCRIBIR',
         '¿Qué equipo es conocido como \'Los Citizens\'?',
         'DIFICIL',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         1,
@@ -651,8 +687,7 @@ VALUES
         'VF',
         'El PSG pertenece a un grupo de inversión de Catar',
         'MEDIO',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         1,
@@ -665,8 +700,7 @@ VALUES
         'OPCIONES',
         '¿Cuál es el equipo más exitoso de Italia en títulos de liga?',
         'MEDIO',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         1,
@@ -679,8 +713,7 @@ VALUES
         'VF',
         'El Chelsea ganó la Champions League por primera vez en 2005',
         'DIFICIL',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         1,
@@ -693,8 +726,7 @@ VALUES
         'OPCIONES',
         '¿En qué año se fundó el club Liverpool FC?',
         'DIFICIL',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         1,
@@ -707,8 +739,7 @@ VALUES
         'ESCRIBIR',
         '¿Cuál es el apodo del AC Milan?',
         'DIFICIL',
-        NULL,
-        NULL
+        'NO'
     ),
     (
         1,
@@ -721,8 +752,59 @@ VALUES
         'OPCIONES',
         '¿Qué equipo ganó la primera Champions League de la historia?',
         'FACIL',
+        'NO'
+    ),
+    (
+        10,
+        45,
+        'https://pandorafms.com/blog/wp-content/uploads/2019/01/lenguajes-de-programacion-featured.png',
+        'JavaScript',
+        'Python',
+        'SQL',
+        'SQL',
+        'OPCIONES',
+        '¿Cuál de las opciones NO es un lenguaje de programación?',
+        'FACIL',
+        'NO'
+    ),
+    (
+        10,
+        46,
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRuHnJDLOcdm_0b6N6kNj-1OvO9KhKYgqIy0w&s',
+        'Angular',
+        'React',
+        'Svelte',
+        'Angular',
+        'OPCIONES',
+        'Solamente una de las tecnologias es un Framework JS como tal',
+        'MEDIO',
+        'NO'
+    ),
+    (
+        10,
+        47,
+        'https://cdn.programiz.com/sites/tutorial2program/files/c-arrays.jpg',
         NULL,
-        NULL
+        NULL,
+        NULL,
+        'for',
+        'ESCRIBIR',
+        'Escribe la palabra clave que permite iterar sobre un Array en muchos lenguajes',
+        'MEDIO',
+        'NO'
+    ),
+    (
+        10,
+        48,
+        'https://www.sessionstudio.com.ar/wp-content/uploads/2016/08/curso-online-de-java-gratis.png',
+        'verdadero',
+        'falso',
+        NULL,
+        'verdadero',
+        'VF',
+        'En Java, String es un tipo Objecto',
+        'MEDIO',
+        'NO'
     );
 
 /*!40000 ALTER TABLE `preguntas` ENABLE KEYS */;
@@ -745,4 +827,4 @@ UNLOCK TABLES;
 
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-10-23  2:06:16
+-- Dump completed on 2025-11-11  2:20:52

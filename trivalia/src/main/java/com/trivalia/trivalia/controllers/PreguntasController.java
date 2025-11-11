@@ -15,26 +15,29 @@ import org.springframework.web.bind.annotation.RestController;
 import com.trivalia.trivalia.dto.PreguntaDTO;
 import com.trivalia.trivalia.entities.PreguntasEntity;
 import com.trivalia.trivalia.mappers.PreguntaMapper;
+import com.trivalia.trivalia.services.PreguntaIAService;
 import com.trivalia.trivalia.services.PreguntasService;
 
 @RestController
 @RequestMapping("/api/preguntas")
 public class PreguntasController {
 
-    private final PreguntasService ps;
+    private final PreguntasService preguntaService;
+    private final PreguntaIAService preguntaIAService;
 
-    public PreguntasController(PreguntasService ps) {
-        this.ps = ps;
+    public PreguntasController(PreguntasService preguntaService, PreguntaIAService preguntaIAService) {
+        this.preguntaService = preguntaService;
+        this.preguntaIAService = preguntaIAService;
     }
 
     @GetMapping("/obtener/{id_categoria}/{limite}")
     public List<PreguntaDTO> obtenerPreguntasPorCategoria(@PathVariable Long id_categoria, @PathVariable int limite) {
-        return this.ps.obtenerListPreguntas(id_categoria, limite);
+        return this.preguntaService.obtenerListPreguntas(id_categoria, limite);
     }
 
     @GetMapping("/aleatorias/{limite}")
     public List<PreguntaDTO> obtenerPreguntasAleatorias(@PathVariable int limite) {
-        return this.ps.obtenerListPreguntasAleatorias(limite);
+        return this.preguntaService.obtenerListPreguntasAleatorias(limite);
     }
 
     // @GetMapping("/obtener-vista-previa/{id_categoria}")
@@ -51,7 +54,7 @@ public class PreguntasController {
     // }
     @PostMapping("/crear")
     public Map<String, String> crearPregunta(@RequestBody PreguntaDTO dto) {
-        PreguntasEntity nuevaPregunta = this.ps.crearPregunta(dto);
+        PreguntasEntity nuevaPregunta = this.preguntaService.crearPregunta(dto);
         Map<String, String> mensajeMap = new HashMap<>();
         mensajeMap.put("mensaje", "Pregunta creada: " + nuevaPregunta.toString());
         return mensajeMap;
@@ -61,7 +64,7 @@ public class PreguntasController {
     public List<PreguntaDTO> obtenerDificiles(@RequestBody Long[] arrayIdPreguntas) {
         List<PreguntasEntity> entityList = new ArrayList<>();
         for (Long idPregunta : arrayIdPreguntas) {
-            entityList.add(this.ps.obtenerPreguntaDificil(idPregunta));
+            entityList.add(this.preguntaService.obtenerPreguntaDificil(idPregunta));
         }
 
         List<PreguntaDTO> dtoList = entityList.stream().map((entity) -> {
@@ -79,13 +82,13 @@ public class PreguntasController {
     @GetMapping("/obtener-respuesta-correcta/{idPregunta}")
     public Map<String, String> obtenerRespuestaCorrecta(@PathVariable Long idPregunta) {
         Map<String, String> respuestaMap = new HashMap<>();
-        respuestaMap.put("respuesta_correcta", this.ps.obtenerRespuestaCorrecta(idPregunta));
+        respuestaMap.put("respuesta_correcta", this.preguntaService.obtenerRespuestaCorrecta(idPregunta));
         return respuestaMap;
     }
 
     @GetMapping("/obtener-pregunta-ia")
     public PreguntaDTO obtenerPreguntaIA() {
-        return this.ps.generarPreguntaIA();
+        return this.preguntaIAService.generarPreguntaIA();
     }
 
 }

@@ -1,6 +1,6 @@
 
 # Imagen con Java 23
-FROM openjdk:23-jdk-slim
+FROM eclipse-temurin:23-jdk
 
 # Definir el Archivo JAR compilado en Target
 ARG JAR_FILE=target/trivalia-0.0.1-SNAPSHOT.jar 

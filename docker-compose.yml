@@ -28,6 +28,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://trivalia-db:3306/suspect?createDatabaseIfNotExist=true&ServerTimezone=UTC
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
+      IA_API_KEY: AIzaSyBWa13o2xQmoOeIXjou-2---B0ZF_3oIpY
     depends_on:
       - trivalia-db
            
