@@ -36,6 +36,7 @@ services:
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       IA_API_KEY: ${API_KEY}
+      IMG_BB_API_KEY: ${IMG_BB_API_KEY}
     depends_on:
       - trivalia-db
            
