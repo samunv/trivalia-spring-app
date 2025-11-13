@@ -37,6 +37,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       IA_API_KEY: ${API_KEY}
       IMG_BB_API_KEY: ${IMG_BB_API_KEY}
+      JWT_FIRMA: ${JWT_FIRMA}
     depends_on:
       - trivalia-db
            

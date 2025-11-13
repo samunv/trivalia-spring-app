@@ -12,9 +12,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.trivalia.trivalia.dto.PreguntaDTO;
 import com.trivalia.trivalia.entities.PreguntasEntity;
 import com.trivalia.trivalia.mappers.PreguntaMapper;
+import com.trivalia.trivalia.model.PreguntaDTO;
+import com.trivalia.trivalia.model.RespuestaUsuarioDTO;
+import com.trivalia.trivalia.model.ResultadoPreguntaRespondidaDTO;
+import com.trivalia.trivalia.model.UsuarioDTO;
 import com.trivalia.trivalia.services.PreguntaIAService;
 import com.trivalia.trivalia.services.PreguntasService;
 
@@ -40,18 +43,6 @@ public class PreguntasController {
         return this.preguntaService.obtenerListPreguntasAleatorias(limite);
     }
 
-    // @GetMapping("/obtener-vista-previa/{id_categoria}")
-    // public List<PreguntaDTO> obtenerVistaPrevia(@PathVariable Long id_categoria) {
-    //     List<PreguntasEntity> entityList = this.ps.obtenerListPreguntas(id_categoria);
-    //     List<PreguntaDTO> vistaPrevia = entityList.stream()
-    //             .map(entity -> {
-    //                 PreguntaDTO dto = PreguntaMapper.INSTANCE.toDTO(entity);
-    //                 dto.setRespuesta_correcta(null); // eliminar respuesta correcta
-    //                 return dto;
-    //             })
-    //             .toList();
-    //     return vistaPrevia;
-    // }
     @PostMapping("/crear")
     public Map<String, String> crearPregunta(@RequestBody PreguntaDTO dto) {
         PreguntasEntity nuevaPregunta = this.preguntaService.crearPregunta(dto);
@@ -89,6 +80,11 @@ public class PreguntasController {
     @GetMapping("/obtener-pregunta-ia")
     public PreguntaDTO obtenerPreguntaIA() {
         return this.preguntaIAService.generarPreguntaIA();
+    }
+
+    @PostMapping("/responder/{uid}")
+    public ResultadoPreguntaRespondidaDTO responderPregunta(@PathVariable String uid, @RequestBody RespuestaUsuarioDTO respuestaUsuario) {
+      return this.preguntaService.responderPregunta(uid, respuestaUsuario);
     }
 
 }

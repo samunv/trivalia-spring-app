@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.trivalia.trivalia.dto.CategoriaDTO;
+import com.trivalia.trivalia.model.CategoriaDTO;
 import com.trivalia.trivalia.services.CategoriaService;
 
 @RestController

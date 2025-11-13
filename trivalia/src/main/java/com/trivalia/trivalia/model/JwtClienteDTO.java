@@ -1,4 +1,4 @@
-package com.trivalia.trivalia.dto;
+package com.trivalia.trivalia.model;
 
 public class JwtClienteDTO {
 

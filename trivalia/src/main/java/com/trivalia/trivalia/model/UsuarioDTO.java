@@ -1,8 +1,8 @@
-package com.trivalia.trivalia.dto;
+package com.trivalia.trivalia.model;
 
 import java.util.List;
 
-import com.trivalia.trivalia.entities.PreguntasEntity;
+import com.google.firebase.database.annotations.NotNull;
 
 public class UsuarioDTO {
 

@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.genai.Client;
 import com.google.genai.types.GenerateContentConfig;
 import com.google.genai.types.GenerateContentResponse;
-import com.trivalia.trivalia.dto.PreguntaDTO;
+import com.trivalia.trivalia.model.PreguntaDTO;
 
 @Service
 public class PreguntaIAService {

@@ -4,12 +4,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.trivalia.trivalia.config.Jwt;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.trivalia.trivalia.dto.UsuarioDTO;
 import com.trivalia.trivalia.services.UsuarioService;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,12 +18,14 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import com.trivalia.trivalia.enums.Item;
+import com.trivalia.trivalia.model.UsuarioDTO;
 
 @RestController
 @RequestMapping("/api/usuarios")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private Jwt jwt;
 
     public UsuarioController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
@@ -43,12 +46,11 @@ public class UsuarioController {
         return this.usuarioService.obtenerListaUsuarios();
     }
 
-    @PatchMapping("/actualizar-item/{uid}/{claveItem}/{numero}")
-    public Map<String, String> actualizarItems(
-            @PathVariable String uid,
-            @PathVariable Item claveItem,
-            @PathVariable Integer numero
-    ) {
-        return Map.of("exito", this.usuarioService.actualizarItem(claveItem, numero, uid));
+    // @PreAuthorize para verificar que el uid enviado coincide con el que está guardado en el de SpringSecurity
+    @PreAuthorize("#uid == authentication.name")
+    @PatchMapping("/actualizar-nombre-foto/{uid}")
+    public UsuarioDTO actualizarUsuario(@PathVariable String uid, @RequestBody UsuarioDTO dto) {
+
+        return this.usuarioService.actualizarNombreFoto(uid, dto);
     }
 }

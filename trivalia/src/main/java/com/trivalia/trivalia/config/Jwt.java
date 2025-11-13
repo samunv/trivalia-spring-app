@@ -2,6 +2,7 @@ package com.trivalia.trivalia.config;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -10,6 +11,8 @@ import java.util.Date;
 @Component
 public class Jwt {
 
+    @Value("${jwt.firma}")
+    private String jwtFirma;
     private final Key key = Keys.hmacShaKeyFor("MiClaveSuperSecretaQueDebeSerLarga1234567890".getBytes());
 
     public String generarToken(String uid) {

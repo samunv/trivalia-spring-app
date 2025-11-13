@@ -6,10 +6,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.trivalia.trivalia.dto.CategoriaDTO;
 import com.trivalia.trivalia.entities.CategoriaEntity;
 import com.trivalia.trivalia.entities.PreguntasEntity;
 import com.trivalia.trivalia.mappers.CategoriaMapper;
+import com.trivalia.trivalia.model.CategoriaDTO;
 import com.trivalia.trivalia.repositories.CategoriaRepository;
 
 @Service

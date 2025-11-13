@@ -13,7 +13,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.trivalia.trivalia.config.Jwt;
-import com.trivalia.trivalia.dto.JwtClienteDTO;
+import com.trivalia.trivalia.model.JwtClienteDTO;
 
 @RestController
 @RequestMapping("/auth")

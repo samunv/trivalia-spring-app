@@ -1,4 +1,4 @@
-package com.trivalia.trivalia.dto;
+package com.trivalia.trivalia.model;
 
 import com.trivalia.trivalia.entities.PreguntasEntity.Dificultad;
 import com.trivalia.trivalia.entities.PreguntasEntity.TipoPregunta;
