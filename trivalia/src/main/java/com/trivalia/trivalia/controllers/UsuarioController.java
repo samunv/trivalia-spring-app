@@ -41,9 +41,9 @@ public class UsuarioController {
         return this.usuarioService.obtenerUsuario(uid);
     }
 
-    @GetMapping("/listar")
-    public List<UsuarioDTO> listarUsuarios() {
-        return this.usuarioService.obtenerListaUsuarios();
+    @GetMapping("/listar/{limite}")
+    public List<UsuarioDTO> listarUsuarios(@PathVariable Integer limite) {
+        return this.usuarioService.obtenerListaUsuarios(limite);
     }
 
     // @PreAuthorize para verificar que el uid enviado coincide con el que está guardado en el de SpringSecurity

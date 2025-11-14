@@ -9,6 +9,7 @@ public class ResultadoPreguntaRespondidaDTO {
     private Item itemAfectado;
     private Integer cantidadItemAfectada;
     private boolean continuar;
+    private UsuarioDTO usuarioActualizado;
 
     public ResultadoPreguntaRespondidaDTO() {
     }
@@ -53,4 +54,11 @@ public class ResultadoPreguntaRespondidaDTO {
         this.continuar = continuar;
     }
 
+    public UsuarioDTO getUsuarioActualizado() {
+        return usuarioActualizado;
+    }
+
+    public void setUsuarioActualizado(UsuarioDTO usuarioActualizado) {
+        this.usuarioActualizado = usuarioActualizado;
+    }
 }

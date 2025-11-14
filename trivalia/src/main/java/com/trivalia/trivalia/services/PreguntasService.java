@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import com.trivalia.trivalia.mappers.UsuarioMapper;
+import com.trivalia.trivalia.model.*;
 import org.springframework.stereotype.Service;
 
 import com.trivalia.trivalia.entities.CategoriaEntity;
@@ -16,10 +18,6 @@ import com.trivalia.trivalia.entities.PreguntasEntity.Dificultad;
 import com.trivalia.trivalia.enums.Item;
 import com.trivalia.trivalia.enums.Operaciones;
 import com.trivalia.trivalia.mappers.PreguntaMapper;
-import com.trivalia.trivalia.model.PreguntaDTO;
-import com.trivalia.trivalia.model.RespuestaUsuarioDTO;
-import com.trivalia.trivalia.model.ResultadoPreguntaRespondidaDTO;
-import com.trivalia.trivalia.model.UsuarioDTO;
 import com.trivalia.trivalia.repositories.CategoriaRepository;
 import com.trivalia.trivalia.repositories.PreguntasRepository;
 import com.trivalia.trivalia.repositories.UsuarioRepository;
@@ -28,16 +26,13 @@ import com.trivalia.trivalia.repositories.UsuarioRepository;
 public class PreguntasService {
 
     private final PreguntasRepository preguntasRepository;
-    private final CategoriaRepository categoriaRepository;
     private final UsuarioService usuarioService;
-    private final UsuarioRepository usuarioRepository;
+    private final CategoriaRepository categoriaRepository;
 
-    public PreguntasService(PreguntasRepository preguntasRepository, CategoriaRepository categoriaRepository, UsuarioService usuarioService, UsuarioRepository usuarioRepository) {
+    public PreguntasService(PreguntasRepository preguntasRepository, UsuarioService usuarioService, CategoriaRepository categoriaRepository) {
         this.preguntasRepository = preguntasRepository;
-        this.categoriaRepository = categoriaRepository;
         this.usuarioService = usuarioService;
-        this.usuarioRepository = usuarioRepository;
-
+        this.categoriaRepository = categoriaRepository;
     }
 
     public List<PreguntaDTO> obtenerListPreguntas(Long idCategoria, int limite) {
@@ -90,7 +85,7 @@ public class PreguntasService {
         pregunta.setImagenURL(dto.getImagenURL());
 
         if (this.obtenerCantidadPreguntasPorCategoria(dto.getIdCategoria()) <= 15) {
-            CategoriaEntity categoria = this.buscarCategoria(dto.getIdCategoria()).orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+            CategoriaEntity categoria = this.buscarCategoria(dto.getIdCategoria());
             pregunta.setCategoria(categoria);
             return preguntasRepository.save(pregunta);
         } else {
@@ -99,9 +94,8 @@ public class PreguntasService {
 
     }
 
-    public Optional<CategoriaEntity> buscarCategoria(Long idCategoria) {
-        return this.categoriaRepository.findById(idCategoria);
-
+    public CategoriaEntity buscarCategoria(Long idCategoria) {
+        return this.categoriaRepository.findById(idCategoria).orElse(null);
     }
 
     public int obtenerCantidadPreguntasPorCategoria(Long idCategoria) {
@@ -124,54 +118,15 @@ public class PreguntasService {
 
     public ResultadoPreguntaRespondidaDTO responderPregunta(String uid, RespuestaUsuarioDTO respuestaUsuario) {
         PreguntasEntity preguntaEntity = this.preguntasRepository.findById(respuestaUsuario.getIdPregunta()).get();
-        UsuarioEntity usuarioEntity = this.usuarioRepository.findById(uid).orElseThrow(() -> new NoSuchElementException("Usuario no encontrado con UID: " + uid));
-        if (respuestaUsuario.getRespuesta_seleccionada().equalsIgnoreCase(preguntaEntity.getRespuesta_correcta())) {
-            return this.acertarPregunta(uid, preguntaEntity.getDificultad());
+        boolean respuestaEsCorrecta = respuestaUsuario.getRespuestaSeleccionada().equalsIgnoreCase(preguntaEntity.getRespuesta_correcta());
+
+        if (respuestaEsCorrecta) {
+            return this.usuarioService.acertarPregunta(uid, preguntaEntity.getDificultad(), respuestaUsuario.getIdPregunta());
         } else {
-            return this.fallarPregunta(uid, preguntaEntity.getRespuesta_correcta());
+            return this.usuarioService.fallarPregunta(uid, preguntaEntity.getRespuesta_correcta());
         }
 
     }
 
-    private Integer calcularEstrellasSegunDificultad(Dificultad dificultad) {
-        return switch (dificultad) {
-            case Dificultad.FACIL -> 10;
-            case Dificultad.MEDIO -> 20;
-            case Dificultad.DIFICIL -> 30;
-        };
-    }
 
-    private ResultadoPreguntaRespondidaDTO acertarPregunta(String uid, Dificultad dificultad) {
-        Integer calculoEstrellas = this.calcularEstrellasSegunDificultad(dificultad);
-        if (this.usuarioService.actualizarItem(Item.estrellas, calculoEstrellas, uid, Operaciones.sumar)) {
-            ResultadoPreguntaRespondidaDTO resultadoPreguntaDTO = new ResultadoPreguntaRespondidaDTO();
-
-            resultadoPreguntaDTO.setEsCorrecta(true);
-            resultadoPreguntaDTO.setMensaje("¡Respuesta correcta!");
-            resultadoPreguntaDTO.setItemAfectado(Item.estrellas);
-            resultadoPreguntaDTO.setCantidadItemAfectada(calculoEstrellas);
-            resultadoPreguntaDTO.setContinuar(true);
-
-            return resultadoPreguntaDTO;
-        }else{
-            return null;
-        }
-    }
-
-    private ResultadoPreguntaRespondidaDTO fallarPregunta(String uid, String respuestaCorrecta) {
-        Integer vidasRestar = 1;
-        if (this.usuarioService.actualizarItem(Item.vidas, vidasRestar, uid, Operaciones.restar)) {
-            ResultadoPreguntaRespondidaDTO resultadoPreguntaDTO = new ResultadoPreguntaRespondidaDTO();
-
-            resultadoPreguntaDTO.setEsCorrecta(false);
-            resultadoPreguntaDTO.setMensaje("¡Incorrecto! Respuesta correcta: " + respuestaCorrecta);
-            resultadoPreguntaDTO.setItemAfectado(Item.vidas);
-            resultadoPreguntaDTO.setCantidadItemAfectada(vidasRestar);
-            resultadoPreguntaDTO.setContinuar(false);
-
-            return resultadoPreguntaDTO;
-        }else{
-            return null;
-        }
-    }
 }

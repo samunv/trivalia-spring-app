@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.trivalia.trivalia.entities.UsuarioEntity;
+import com.trivalia.trivalia.repositories.PreguntasRepository;
+import com.trivalia.trivalia.repositories.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
 import com.trivalia.trivalia.entities.CategoriaEntity;
@@ -16,11 +19,13 @@ import com.trivalia.trivalia.repositories.CategoriaRepository;
 public class CategoriaService {
 
     private final CategoriaRepository categoriaRepository;
-    private final PreguntasService preguntaService;
+    private final PreguntasRepository preguntasRepository;
+    private final UsuarioRepository usuarioRepository;
 
-    public CategoriaService(CategoriaRepository categoriaRepository, PreguntasService preguntaService) {
+    public CategoriaService(CategoriaRepository categoriaRepository, PreguntasRepository preguntasRepository, UsuarioRepository usuarioRepository) {
         this.categoriaRepository = categoriaRepository;
-        this.preguntaService = preguntaService;
+        this.preguntasRepository = preguntasRepository;
+        this.usuarioRepository = usuarioRepository;
     }
 
     public List<CategoriaDTO> obtenerCategorias() {
@@ -32,15 +37,33 @@ public class CategoriaService {
         return dtoList;
     }
 
-    public CategoriaDTO obtenerCategoriaPorId(Long idCategoria) {
+    public CategoriaDTO obtenerCategoriaDTOPorId(Long idCategoria) {
         CategoriaEntity categoriaEntity = this.categoriaRepository.findById(idCategoria).orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
         CategoriaDTO dto = CategoriaMapper.INSTANCE.toDTO(categoriaEntity);
         return dto;
     }
 
-    public int ObtenerCantidadPreguntas(Long idCategoria) {
-        List<PreguntasEntity> preguntasList = this.preguntaService.obtenerListPreguntas(idCategoria);
-        return preguntasList.size();
+//    public int ObtenerCantidadPreguntas(Long idCategoria) {
+//        List<PreguntasEntity> preguntasList = this.preguntasRepository.findByCategoriaIdCategoria(idCategoria);
+//        return preguntasList.size();
+//    }
+
+    public boolean jugarCategoria(String uid) {
+        if (this.comprobarVidasUsuario(uid)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean comprobarVidasUsuario(String uid) {
+        if (this.usuarioRepository.findById(uid).isPresent()) {
+            UsuarioEntity usuarioEntity = this.usuarioRepository.findById(uid).get();
+            if (usuarioEntity.getVidas() >= 1) {
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 
 }

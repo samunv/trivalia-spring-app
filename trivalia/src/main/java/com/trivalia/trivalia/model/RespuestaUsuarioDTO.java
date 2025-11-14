@@ -3,7 +3,7 @@ package com.trivalia.trivalia.model;
 public class RespuestaUsuarioDTO {
 
     private Long idPregunta;
-    private String respuesta_seleccionada;
+    private String respuestaSeleccionada;
 
     public RespuestaUsuarioDTO() {
     }
@@ -16,11 +16,11 @@ public class RespuestaUsuarioDTO {
         this.idPregunta = idPregunta;
     }
 
-    public String getRespuesta_seleccionada() {
-        return respuesta_seleccionada;
+    public String getRespuestaSeleccionada() {
+        return respuestaSeleccionada;
     }
 
-    public void setRespuesta_seleccionada(String respuesta_seleccionada) {
-        this.respuesta_seleccionada = respuesta_seleccionada;
+    public void setRespuestaseleccionada(String respuestaSeleccionada) {
+        this.respuestaSeleccionada = respuestaSeleccionada;
     }
 }

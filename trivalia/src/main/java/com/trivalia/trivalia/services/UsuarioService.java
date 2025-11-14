@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import com.trivalia.trivalia.model.PreguntaDTO;
+import com.trivalia.trivalia.model.ResultadoPreguntaRespondidaDTO;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
@@ -21,11 +23,11 @@ import com.trivalia.trivalia.repositories.UsuarioRepository;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
-    private final PreguntasRepository preguntaRepository;
+    private final PreguntasRepository preguntasRepository;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PreguntasRepository preguntaRepository) {
+    public UsuarioService(UsuarioRepository usuarioRepository, PreguntasRepository preguntasRepository) {
         this.usuarioRepository = usuarioRepository;
-        this.preguntaRepository = preguntaRepository;
+        this.preguntasRepository = preguntasRepository;
     }
 
     public UsuarioDTO obtenerOCrearUsuario(UsuarioDTO dto) {
@@ -67,17 +69,19 @@ public class UsuarioService {
     }
 
     public UsuarioDTO obtenerUsuario(String uid) {
-        Optional<UsuarioEntity> usuarioOpt = this.usuarioRepository.findById(uid);
+        Optional<UsuarioEntity> usuarioOpt = this.usuarioRepository.findByIdWithPreguntas(uid);
         if (usuarioOpt.isPresent()) {
             UsuarioEntity usuarioEntity = usuarioOpt.get();
             UsuarioDTO usuarioDTO = UsuarioMapper.INSTANCE.toDTO(usuarioEntity);
+            // Luego agregar los ids de las preguntas ganadas
+            usuarioDTO.setIdsPreguntasGanadas(this.obtenerIdsPreguntasGanadas(uid));
             return usuarioDTO;
         } else {
             throw new NoSuchElementException("Usuario no encontrado con UID: " + uid);
         }
     }
 
-    public List<UsuarioDTO> obtenerListaUsuarios() {
+    public List<UsuarioDTO> obtenerListaUsuarios(Integer limite) {
         List<UsuarioEntity> entityList = this.usuarioRepository.findAll();
         List<UsuarioDTO> dtoList = entityList.stream().map((entity)
                         -> {
@@ -111,7 +115,13 @@ public class UsuarioService {
             case vidas -> {
                 switch (operacion) {
                     case sumar -> entity.setVidas(entity.getVidas() + cantidad);
-                    case restar -> entity.setVidas(entity.getVidas() - cantidad);
+                    case restar -> {
+                        if (entity.getVidas() >= 1) {
+                            entity.setVidas(entity.getVidas() - cantidad);
+                        }else{
+                            entity.setVidas(0);
+                        }
+                    }
                 }
             }
         }
@@ -119,13 +129,6 @@ public class UsuarioService {
         this.usuarioRepository.save(entity);
 
         return true;
-    }
-
-    public boolean verificarRegaloDisponible(String uid) {
-        UsuarioEntity entity = this.usuarioRepository.findById(uid)
-                .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado con UID: " + uid));
-
-        return entity.getRegaloDisponible();
     }
 
     public String actualizarRegaloDisponible(String uid, boolean disponible) {
@@ -136,14 +139,6 @@ public class UsuarioService {
         this.usuarioRepository.save(entity);
 
         return "Estado de regalo disponible actualizado a " + disponible + " para el usuario " + entity.getNombre();
-    }
-
-    public String actualizarPreguntasGanadas(String uid, Long idPregunta) {
-
-        PreguntasEntity preguntaEntity = this.preguntaRepository.findById(idPregunta).get();
-        UsuarioEntity usuarioEntity = this.usuarioRepository.findById(uid).get();
-
-        return "";
     }
 
     public UsuarioDTO actualizarNombreFoto(String uid, UsuarioDTO usuarioDTO) {
@@ -163,5 +158,103 @@ public class UsuarioService {
         }
 
     }
+
+    public ResultadoPreguntaRespondidaDTO acertarPregunta(String uid, PreguntasEntity.Dificultad dificultad, Long idPregunta) {
+        Integer calculoEstrellas = this.calcularEstrellasSegunDificultad(dificultad);
+        if (this.actualizarItem(Item.estrellas, calculoEstrellas, uid, Operaciones.sumar)) {
+            this.insertarPreguntaGanada(idPregunta, uid);
+
+            ResultadoPreguntaRespondidaDTO resultadoPreguntaDTO = new ResultadoPreguntaRespondidaDTO();
+
+            resultadoPreguntaDTO.setEsCorrecta(true);
+            resultadoPreguntaDTO.setMensaje("¡Respuesta correcta!");
+            resultadoPreguntaDTO.setItemAfectado(Item.estrellas);
+            resultadoPreguntaDTO.setCantidadItemAfectada(calculoEstrellas);
+            resultadoPreguntaDTO.setContinuar(true);
+            resultadoPreguntaDTO.setUsuarioActualizado(this.obtenerUsuario(uid));
+
+            return resultadoPreguntaDTO;
+        } else {
+            return null;
+        }
+    }
+
+    public ResultadoPreguntaRespondidaDTO fallarPregunta(String uid, String respuestaCorrecta) {
+        Integer vidasRestar = 1;
+        if (this.actualizarItem(Item.vidas, vidasRestar, uid, Operaciones.restar)) {
+
+            UsuarioDTO usuarioDTO = this.obtenerUsuario(uid);
+            this.actualizarCantidadPreguntasFalladas(uid);
+            ResultadoPreguntaRespondidaDTO resultadoPreguntaDTO = new ResultadoPreguntaRespondidaDTO();
+
+            resultadoPreguntaDTO.setEsCorrecta(false);
+            resultadoPreguntaDTO.setMensaje("¡Incorrecto! Respuesta correcta: " + respuestaCorrecta);
+            resultadoPreguntaDTO.setItemAfectado(Item.vidas);
+            resultadoPreguntaDTO.setCantidadItemAfectada(vidasRestar);
+            resultadoPreguntaDTO.setContinuar(false);
+            resultadoPreguntaDTO.setUsuarioActualizado(usuarioDTO);
+
+            return resultadoPreguntaDTO;
+        } else {
+            return null;
+        }
+    }
+
+
+    private Integer calcularEstrellasSegunDificultad(PreguntasEntity.Dificultad dificultad) {
+        return switch (dificultad) {
+            case PreguntasEntity.Dificultad.FACIL -> 10;
+            case PreguntasEntity.Dificultad.MEDIO -> 20;
+            case PreguntasEntity.Dificultad.DIFICIL -> 30;
+        };
+    }
+
+    private List<Long> obtenerIdsPreguntasGanadas(String uid) {
+        UsuarioEntity usuarioEntity = this.usuarioRepository.findById(uid).orElse(null);
+        if (usuarioEntity != null) {
+            return usuarioEntity.getPreguntasGanadas().stream().map(PreguntasEntity::getIdPregunta).toList();
+        }
+        return List.of();
+    }
+
+    public Long insertarPreguntaGanada(Long idPregunta, String uid) {
+
+        UsuarioEntity usuario = usuarioRepository.findById(uid).orElse(null);
+
+        if (usuario == null) {
+            return null; // o lanzar excepción
+        }
+
+        PreguntasEntity pregunta = preguntasRepository.findById(idPregunta).orElse(null);
+
+        if (pregunta == null) {
+            return null; // o lanzar excepción
+        }
+
+        // Obtener la lista de preguntas ganadas
+        List<PreguntasEntity> preguntasGanadas = usuario.getPreguntasGanadas();
+
+        // Evitar duplicados
+        if (!preguntasGanadas.contains(pregunta)) {
+            preguntasGanadas.add(pregunta);
+            usuario.setPreguntasGanadas(preguntasGanadas);
+            usuarioRepository.save(usuario);
+        }
+
+        return pregunta.getIdPregunta();
+    }
+
+    public boolean actualizarCantidadPreguntasFalladas(String uid) {
+        UsuarioEntity usuarioEntity = this.usuarioRepository.findById(uid).orElse(null);
+        if (usuarioEntity != null) {
+            Integer cantidadPreguntasFalladasActual = usuarioEntity.getCantidadPreguntasFalladas();
+            usuarioEntity.setCantidadPreguntasFalladas(cantidadPreguntasFalladasActual + 1);
+            this.usuarioRepository.save(usuarioEntity);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 
 }

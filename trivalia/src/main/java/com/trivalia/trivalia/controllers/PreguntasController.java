@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -82,6 +83,7 @@ public class PreguntasController {
         return this.preguntaIAService.generarPreguntaIA();
     }
 
+    @PreAuthorize("#uid == authentication.name")
     @PostMapping("/responder/{uid}")
     public ResultadoPreguntaRespondidaDTO responderPregunta(@PathVariable String uid, @RequestBody RespuestaUsuarioDTO respuestaUsuario) {
       return this.preguntaService.responderPregunta(uid, respuestaUsuario);
