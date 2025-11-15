@@ -4,10 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.trivalia.trivalia.model.UsuarioDTO;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import com.trivalia.trivalia.model.CategoriaDTO;
 import com.trivalia.trivalia.services.CategoriaService;
@@ -47,6 +46,13 @@ public class CategoriaController {
         return Map.of();
     }
 
+    @PreAuthorize("#uid == authentication.name")
+    @GetMapping("/continuar-con-monedas/{uid}")
+    public Map<String, Boolean> continuarConMonedas(@PathVariable String uid) {
+        Map<String, Boolean> resultado = new HashMap<>();
+        resultado.put("resultado", this.cs.continuarConMonedas(uid));
+        return resultado;
+    }
 
 
 }

@@ -36,6 +36,7 @@ public class UsuarioController {
         return this.usuarioService.obtenerOCrearUsuario(dto);
     }
 
+    @PreAuthorize("#uid == authentication.name")
     @GetMapping("/obtener/{uid}")
     public UsuarioDTO verificarUsuario(@PathVariable String uid) {
         return this.usuarioService.obtenerUsuario(uid);

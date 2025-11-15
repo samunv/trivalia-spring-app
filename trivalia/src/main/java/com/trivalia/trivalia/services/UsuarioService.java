@@ -33,9 +33,7 @@ public class UsuarioService {
     public UsuarioDTO obtenerOCrearUsuario(UsuarioDTO dto) {
         // Si existe un usuario con ese UID, me devolverá ese usuario y no creará ninguno nuevo
         if (this.usuarioRepository.existsById(dto.getUid())) {
-            UsuarioEntity entityExistente = this.usuarioRepository.findById(dto.getUid()).get();
-            UsuarioDTO dtoExistente = UsuarioMapper.INSTANCE.toDTO(entityExistente);
-            return dtoExistente;
+            return this.obtenerUsuario(dto.getUid());
         } else {
             return this.crearNuevoUsuario(dto);
         }
@@ -83,13 +81,7 @@ public class UsuarioService {
 
     public List<UsuarioDTO> obtenerListaUsuarios(Integer limite) {
         List<UsuarioEntity> entityList = this.usuarioRepository.findAll();
-        List<UsuarioDTO> dtoList = entityList.stream().map((entity)
-                        -> {
-                    UsuarioDTO dto = UsuarioMapper.INSTANCE.toDTO(entity);
-                    // Ocultar el UID en la lista de usuarios pública
-                    dto.setUid(null);
-                    return dto;
-                }
+        List<UsuarioDTO> dtoList = entityList.stream().map(UsuarioMapper.INSTANCE::toDTO
         ).toList();
 
         return dtoList;
@@ -118,7 +110,7 @@ public class UsuarioService {
                     case restar -> {
                         if (entity.getVidas() >= 1) {
                             entity.setVidas(entity.getVidas() - cantidad);
-                        }else{
+                        } else {
                             entity.setVidas(0);
                         }
                     }
@@ -163,17 +155,8 @@ public class UsuarioService {
         Integer calculoEstrellas = this.calcularEstrellasSegunDificultad(dificultad);
         if (this.actualizarItem(Item.estrellas, calculoEstrellas, uid, Operaciones.sumar)) {
             this.insertarPreguntaGanada(idPregunta, uid);
-
-            ResultadoPreguntaRespondidaDTO resultadoPreguntaDTO = new ResultadoPreguntaRespondidaDTO();
-
-            resultadoPreguntaDTO.setEsCorrecta(true);
-            resultadoPreguntaDTO.setMensaje("¡Respuesta correcta!");
-            resultadoPreguntaDTO.setItemAfectado(Item.estrellas);
-            resultadoPreguntaDTO.setCantidadItemAfectada(calculoEstrellas);
-            resultadoPreguntaDTO.setContinuar(true);
-            resultadoPreguntaDTO.setUsuarioActualizado(this.obtenerUsuario(uid));
-
-            return resultadoPreguntaDTO;
+            UsuarioDTO usuarioDTO = this.obtenerUsuario(uid);
+            return this.obtenerResultadoPreguntaRespondidaDTO(true, "¡Correcto!", Item.estrellas, calculoEstrellas, usuarioDTO);
         } else {
             return null;
         }
@@ -184,20 +167,24 @@ public class UsuarioService {
         if (this.actualizarItem(Item.vidas, vidasRestar, uid, Operaciones.restar)) {
 
             UsuarioDTO usuarioDTO = this.obtenerUsuario(uid);
-            this.actualizarCantidadPreguntasFalladas(uid);
-            ResultadoPreguntaRespondidaDTO resultadoPreguntaDTO = new ResultadoPreguntaRespondidaDTO();
+            usuarioDTO.setCantidadPreguntasFalladas(this.actualizarCantidadPreguntasFalladas(uid));
 
-            resultadoPreguntaDTO.setEsCorrecta(false);
-            resultadoPreguntaDTO.setMensaje("¡Incorrecto! Respuesta correcta: " + respuestaCorrecta);
-            resultadoPreguntaDTO.setItemAfectado(Item.vidas);
-            resultadoPreguntaDTO.setCantidadItemAfectada(vidasRestar);
-            resultadoPreguntaDTO.setContinuar(false);
-            resultadoPreguntaDTO.setUsuarioActualizado(usuarioDTO);
-
-            return resultadoPreguntaDTO;
+            return this.obtenerResultadoPreguntaRespondidaDTO(false,  "¡Incorrecto! Respuesta correcta: " + respuestaCorrecta, Item.vidas, vidasRestar, usuarioDTO);
         } else {
             return null;
         }
+    }
+
+    private ResultadoPreguntaRespondidaDTO obtenerResultadoPreguntaRespondidaDTO(boolean esCorrecta, String mensaje, Item item, Integer cantidadAfectada, UsuarioDTO usuarioActualizado) {
+        ResultadoPreguntaRespondidaDTO resultadoPreguntaDTO = new ResultadoPreguntaRespondidaDTO();
+
+        resultadoPreguntaDTO.setEsCorrecta(esCorrecta);
+        resultadoPreguntaDTO.setMensaje(mensaje);
+        resultadoPreguntaDTO.setItemAfectado(item);
+        resultadoPreguntaDTO.setCantidadItemAfectada(cantidadAfectada);
+        resultadoPreguntaDTO.setContinuar(esCorrecta);
+        resultadoPreguntaDTO.setUsuarioActualizado(usuarioActualizado);
+        return resultadoPreguntaDTO;
     }
 
 
@@ -244,16 +231,19 @@ public class UsuarioService {
         return pregunta.getIdPregunta();
     }
 
-    public boolean actualizarCantidadPreguntasFalladas(String uid) {
-        UsuarioEntity usuarioEntity = this.usuarioRepository.findById(uid).orElse(null);
-        if (usuarioEntity != null) {
+    public Integer actualizarCantidadPreguntasFalladas(String uid) {
+        Optional<UsuarioEntity> usuarioOpt = this.usuarioRepository.findById(uid);
+        if (usuarioOpt.isPresent()) {
+            UsuarioEntity usuarioEntity = usuarioOpt.get();
+
             Integer cantidadPreguntasFalladasActual = usuarioEntity.getCantidadPreguntasFalladas();
+            Integer cantidasFallosTotales = cantidadPreguntasFalladasActual + 1;
+
             usuarioEntity.setCantidadPreguntasFalladas(cantidadPreguntasFalladasActual + 1);
             this.usuarioRepository.save(usuarioEntity);
-            return true;
-        } else {
-            return false;
+            return cantidasFallosTotales;
         }
+        return 0;
     }
 
 

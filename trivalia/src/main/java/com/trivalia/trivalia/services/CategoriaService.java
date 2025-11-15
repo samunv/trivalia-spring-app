@@ -3,8 +3,11 @@ package com.trivalia.trivalia.services;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import com.trivalia.trivalia.entities.UsuarioEntity;
+import com.trivalia.trivalia.mappers.UsuarioMapper;
+import com.trivalia.trivalia.model.UsuarioDTO;
 import com.trivalia.trivalia.repositories.PreguntasRepository;
 import com.trivalia.trivalia.repositories.UsuarioRepository;
 import org.springframework.stereotype.Service;
@@ -63,6 +66,24 @@ public class CategoriaService {
             }
             return false;
         }
+        return false;
+    }
+
+    public boolean continuarConMonedas(String uid) {
+        Integer monedasRequeridas = 100;
+        UsuarioEntity usuarioEntity = this.usuarioRepository.findById(uid).orElse(null);
+
+        if (usuarioEntity == null) {
+            return false;
+        }
+        Integer monedasUsuario = usuarioEntity.getMonedas();
+
+        if (monedasRequeridas <= monedasUsuario) {
+            usuarioEntity.setMonedas(monedasUsuario - monedasRequeridas);
+            this.usuarioRepository.save(usuarioEntity);
+            return true;
+        }
+
         return false;
     }
 
