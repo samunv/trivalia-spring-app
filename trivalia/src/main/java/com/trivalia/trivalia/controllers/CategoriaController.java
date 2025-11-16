@@ -33,26 +33,6 @@ public class CategoriaController {
         return this.cs.obtenerCategoriaDTOPorId(id_categoria);
     }
 
-    @GetMapping("/jugar/{uid}")
-    public Map<String, Boolean> jugarCategoria(@PathVariable String uid) {
-        Map<String, Boolean> resultado = new HashMap<>();
-        resultado.put("resultado", this.cs.jugarCategoria(uid));
-        return resultado;
-    }
-
-    @GetMapping("/ganar/{uid}")
-    public Map<String, Boolean> ganar(@PathVariable String uid) {
-        // TODO: Añadir en servicio, lógica para finalizar la partida de una categoria o x partida
-        return Map.of();
-    }
-
-    @PreAuthorize("#uid == authentication.name")
-    @GetMapping("/continuar-con-monedas/{uid}")
-    public Map<String, Boolean> continuarConMonedas(@PathVariable String uid) {
-        Map<String, Boolean> resultado = new HashMap<>();
-        resultado.put("resultado", this.cs.continuarConMonedas(uid));
-        return resultado;
-    }
 
 
 }

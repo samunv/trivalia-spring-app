@@ -51,40 +51,4 @@ public class CategoriaService {
 //        return preguntasList.size();
 //    }
 
-    public boolean jugarCategoria(String uid) {
-        if (this.comprobarVidasUsuario(uid)) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean comprobarVidasUsuario(String uid) {
-        if (this.usuarioRepository.findById(uid).isPresent()) {
-            UsuarioEntity usuarioEntity = this.usuarioRepository.findById(uid).get();
-            if (usuarioEntity.getVidas() >= 1) {
-                return true;
-            }
-            return false;
-        }
-        return false;
-    }
-
-    public boolean continuarConMonedas(String uid) {
-        Integer monedasRequeridas = 100;
-        UsuarioEntity usuarioEntity = this.usuarioRepository.findById(uid).orElse(null);
-
-        if (usuarioEntity == null) {
-            return false;
-        }
-        Integer monedasUsuario = usuarioEntity.getMonedas();
-
-        if (monedasRequeridas <= monedasUsuario) {
-            usuarioEntity.setMonedas(monedasUsuario - monedasRequeridas);
-            this.usuarioRepository.save(usuarioEntity);
-            return true;
-        }
-
-        return false;
-    }
-
 }

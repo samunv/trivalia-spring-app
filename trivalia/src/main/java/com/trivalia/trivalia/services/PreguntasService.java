@@ -128,5 +128,9 @@ public class PreguntasService {
 
     }
 
+    private Integer verificarIndicePregunta(Long idPregunta) {
+        PreguntasEntity preguntaEntity = this.preguntasRepository.findById(idPregunta).get();
+        return 0;
+    }
 
 }
