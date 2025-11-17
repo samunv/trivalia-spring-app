@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.trivalia.trivalia.services.UsuarioPreguntaService;
+import com.trivalia.trivalia.services.UsuarioService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,10 +30,12 @@ public class PreguntasController {
 
     private final PreguntasService preguntaService;
     private final PreguntaIAService preguntaIAService;
+    private final UsuarioPreguntaService usuarioPreguntaService;
 
-    public PreguntasController(PreguntasService preguntaService, PreguntaIAService preguntaIAService) {
+    public PreguntasController(PreguntasService preguntaService, PreguntaIAService preguntaIAService, UsuarioPreguntaService usuarioPreguntaService) {
         this.preguntaService = preguntaService;
         this.preguntaIAService = preguntaIAService;
+        this.usuarioPreguntaService = usuarioPreguntaService;
     }
 
     @GetMapping("/obtener/{id_categoria}/{limite}")
@@ -86,7 +90,7 @@ public class PreguntasController {
     @PreAuthorize("#uid == authentication.name")
     @PostMapping("/responder/{uid}")
     public ResultadoPreguntaRespondidaDTO responderPregunta(@PathVariable String uid, @RequestBody RespuestaUsuarioDTO respuestaUsuario) {
-      return this.preguntaService.responderPregunta(uid, respuestaUsuario);
+      return this.usuarioPreguntaService.responderPregunta(uid, respuestaUsuario);
     }
 
 }

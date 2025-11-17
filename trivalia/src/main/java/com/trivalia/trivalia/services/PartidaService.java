@@ -1,16 +1,18 @@
 package com.trivalia.trivalia.services;
 
 import com.trivalia.trivalia.entities.UsuarioEntity;
+import com.trivalia.trivalia.model.UsuarioDTO;
 import com.trivalia.trivalia.repositories.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PartidaService {
 
-    private final UsuarioRepository usuarioRepository;
+    private final UsuarioService usuarioService;
 
-    public PartidaService(UsuarioRepository usuarioRepository) {
-        this.usuarioRepository = usuarioRepository;
+    public PartidaService(UsuarioService usuarioService) {
+
+        this.usuarioService = usuarioService;
     }
 
     public boolean jugarPartida(String uid) {
@@ -18,33 +20,27 @@ public class PartidaService {
     }
 
 
-
     private boolean comprobarVidasUsuario(String uid) {
-        if (this.usuarioRepository.findById(uid).isPresent()) {
-            UsuarioEntity usuarioEntity = this.usuarioRepository.findById(uid).get();
-            if (usuarioEntity.getVidas() >= 1) {
-                return true;
-            }
-            return false;
+        com.trivalia.trivalia.entities.UsuarioEntity usuarioEntity = this.usuarioService.obtenerUsuarioEntity(uid);
+        if (usuarioEntity.getVidas() >= 1) {
+            return true;
         }
         return false;
     }
 
     public boolean continuarConMonedas(String uid, Integer monedasRequeridas) {
-
-        UsuarioEntity usuarioEntity = this.usuarioRepository.findById(uid).orElse(null);
-
-        if (usuarioEntity == null) {
-            return false;
-        };
-        Integer monedasUsuario = usuarioEntity.getMonedas();
-
-        if (monedasRequeridas <= monedasUsuario) {
-            usuarioEntity.setMonedas(monedasUsuario - monedasRequeridas);
-            this.usuarioRepository.save(usuarioEntity);
+        if (this.usuarioService.descontarMonedas(uid, monedasRequeridas)) {
             return true;
         }
-
         return false;
     }
+
+    public boolean ganarPartida(String uid) {
+        UsuarioEntity usuarioEntity = this.usuarioService.obtenerUsuarioEntity(uid);
+        this.usuarioService.anadirPartidaGanada(usuarioEntity);
+        this.usuarioService.actualizarRegaloDisponible(uid, true);
+        return true;
+    }
+
+
 }

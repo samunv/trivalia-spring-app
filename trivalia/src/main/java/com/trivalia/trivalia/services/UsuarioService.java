@@ -23,11 +23,9 @@ import com.trivalia.trivalia.repositories.UsuarioRepository;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
-    private final PreguntasRepository preguntasRepository;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PreguntasRepository preguntasRepository) {
+    public UsuarioService(UsuarioRepository usuarioRepository) {
         this.usuarioRepository = usuarioRepository;
-        this.preguntasRepository = preguntasRepository;
     }
 
     public UsuarioDTO obtenerOCrearUsuario(UsuarioDTO dto) {
@@ -56,7 +54,7 @@ public class UsuarioService {
         entity.setCantidadPreguntasFalladas(0);
 
         try {
-            UsuarioEntity savedEntity = this.usuarioRepository.save(entity);
+            UsuarioEntity savedEntity = this.insertarNuevoUsuario(entity);
             UsuarioDTO dtoCreado = UsuarioMapper.INSTANCE.toDTO(savedEntity);
             return dtoCreado;
 
@@ -79,9 +77,30 @@ public class UsuarioService {
         }
     }
 
+    private UsuarioEntity insertarNuevoUsuario(UsuarioEntity usuarioEntity){
+       return this.usuarioRepository.save(usuarioEntity);
+    }
+
+    public void guardarUsuario(UsuarioEntity usuarioEntity) {
+        this.usuarioRepository.save(usuarioEntity);
+    }
+
+    public UsuarioEntity obtenerUsuarioEntity(String uid) {
+        Optional<UsuarioEntity> usuarioOpt = this.usuarioRepository.findByIdWithPreguntas(uid);
+        if (usuarioOpt.isPresent()) {
+
+            return usuarioOpt.get();
+        } else {
+            throw new NoSuchElementException("Usuario no encontrado con UID: " + uid);
+        }
+    }
+
     public List<UsuarioDTO> obtenerListaUsuarios(Integer limite) {
         List<UsuarioEntity> entityList = this.usuarioRepository.findAll();
-        List<UsuarioDTO> dtoList = entityList.stream().map(UsuarioMapper.INSTANCE::toDTO
+        List<UsuarioDTO> dtoList = entityList.stream().map((entity) -> {
+                    entity.setUid(null);
+                    return UsuarioMapper.INSTANCE.toDTO(entity);
+                }
         ).toList();
 
         return dtoList;
@@ -151,51 +170,6 @@ public class UsuarioService {
 
     }
 
-    public ResultadoPreguntaRespondidaDTO acertarPregunta(String uid, PreguntasEntity.Dificultad dificultad, Long idPregunta) {
-        Integer calculoEstrellas = this.calcularEstrellasSegunDificultad(dificultad);
-        if (this.actualizarItem(Item.estrellas, calculoEstrellas, uid, Operaciones.sumar)) {
-            this.insertarPreguntaGanada(idPregunta, uid);
-            UsuarioDTO usuarioDTO = this.obtenerUsuario(uid);
-            return this.obtenerResultadoPreguntaRespondidaDTO(true, "¡Correcto!", Item.estrellas, calculoEstrellas, usuarioDTO);
-        } else {
-            return null;
-        }
-    }
-
-    public ResultadoPreguntaRespondidaDTO fallarPregunta(String uid, String respuestaCorrecta) {
-        Integer vidasRestar = 1;
-        if (this.actualizarItem(Item.vidas, vidasRestar, uid, Operaciones.restar)) {
-
-            UsuarioDTO usuarioDTO = this.obtenerUsuario(uid);
-            usuarioDTO.setCantidadPreguntasFalladas(this.actualizarCantidadPreguntasFalladas(uid));
-
-            return this.obtenerResultadoPreguntaRespondidaDTO(false,  "¡Incorrecto! Respuesta correcta: " + respuestaCorrecta, Item.vidas, vidasRestar, usuarioDTO);
-        } else {
-            return null;
-        }
-    }
-
-    private ResultadoPreguntaRespondidaDTO obtenerResultadoPreguntaRespondidaDTO(boolean esCorrecta, String mensaje, Item item, Integer cantidadAfectada, UsuarioDTO usuarioActualizado) {
-        ResultadoPreguntaRespondidaDTO resultadoPreguntaDTO = new ResultadoPreguntaRespondidaDTO();
-
-        resultadoPreguntaDTO.setEsCorrecta(esCorrecta);
-        resultadoPreguntaDTO.setMensaje(mensaje);
-        resultadoPreguntaDTO.setItemAfectado(item);
-        resultadoPreguntaDTO.setCantidadItemAfectada(cantidadAfectada);
-        resultadoPreguntaDTO.setContinuar(esCorrecta);
-        resultadoPreguntaDTO.setUsuarioActualizado(usuarioActualizado);
-        return resultadoPreguntaDTO;
-    }
-
-
-    private Integer calcularEstrellasSegunDificultad(PreguntasEntity.Dificultad dificultad) {
-        return switch (dificultad) {
-            case PreguntasEntity.Dificultad.FACIL -> 10;
-            case PreguntasEntity.Dificultad.MEDIO -> 20;
-            case PreguntasEntity.Dificultad.DIFICIL -> 30;
-        };
-    }
-
     private List<Long> obtenerIdsPreguntasGanadas(String uid) {
         UsuarioEntity usuarioEntity = this.usuarioRepository.findById(uid).orElse(null);
         if (usuarioEntity != null) {
@@ -204,32 +178,6 @@ public class UsuarioService {
         return List.of();
     }
 
-    public Long insertarPreguntaGanada(Long idPregunta, String uid) {
-
-        UsuarioEntity usuario = usuarioRepository.findById(uid).orElse(null);
-
-        if (usuario == null) {
-            return null; // o lanzar excepción
-        }
-
-        PreguntasEntity pregunta = preguntasRepository.findById(idPregunta).orElse(null);
-
-        if (pregunta == null) {
-            return null; // o lanzar excepción
-        }
-
-        // Obtener la lista de preguntas ganadas
-        List<PreguntasEntity> preguntasGanadas = usuario.getPreguntasGanadas();
-
-        // Evitar duplicados
-        if (!preguntasGanadas.contains(pregunta)) {
-            preguntasGanadas.add(pregunta);
-            usuario.setPreguntasGanadas(preguntasGanadas);
-            usuarioRepository.save(usuario);
-        }
-
-        return pregunta.getIdPregunta();
-    }
 
     public Integer actualizarCantidadPreguntasFalladas(String uid) {
         Optional<UsuarioEntity> usuarioOpt = this.usuarioRepository.findById(uid);
@@ -245,6 +193,37 @@ public class UsuarioService {
         }
         return 0;
     }
+
+    public void anadirPartidaGanada(UsuarioEntity usuarioEntity) {
+        Integer cantidadPartidasGanadasActuales =  usuarioEntity.getCantidadPartidasGanadas();
+        usuarioEntity.setCantidadPartidasGanadas(cantidadPartidasGanadasActuales + 1);
+        this.usuarioRepository.save(usuarioEntity);
+    }
+
+    public boolean descontarMonedas(String uid, Integer monedasRequeridas) {
+        UsuarioEntity usuarioEntity = this.usuarioRepository.findById(uid).orElse(null);
+        if (usuarioEntity == null) {
+            return false;
+        }
+        if(this.verificarMonedas(usuarioEntity,  monedasRequeridas)) {
+            usuarioEntity.setMonedas(usuarioEntity.getMonedas() - monedasRequeridas);
+            this.guardarUsuario(usuarioEntity);
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean verificarMonedas(UsuarioEntity usuarioEntity, Integer monedasRequeridas){
+        Integer monedasUsuario = usuarioEntity.getMonedas();
+        if (monedasRequeridas <= monedasUsuario) {
+            usuarioEntity.setMonedas(monedasUsuario - monedasRequeridas);
+            this.guardarUsuario(usuarioEntity);
+            return true;
+        }
+        return false;
+    }
+
 
 
 }

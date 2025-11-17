@@ -26,13 +26,15 @@ import com.trivalia.trivalia.repositories.UsuarioRepository;
 public class PreguntasService {
 
     private final PreguntasRepository preguntasRepository;
-    private final UsuarioService usuarioService;
-    private final CategoriaRepository categoriaRepository;
+    private final CategoriaService categoriaService;
 
-    public PreguntasService(PreguntasRepository preguntasRepository, UsuarioService usuarioService, CategoriaRepository categoriaRepository) {
+    public PreguntasService(PreguntasRepository preguntasRepository, CategoriaService categoriaService) {
         this.preguntasRepository = preguntasRepository;
-        this.usuarioService = usuarioService;
-        this.categoriaRepository = categoriaRepository;
+        this.categoriaService = categoriaService;
+    }
+
+    public PreguntasEntity obtenerPregunta(Long idPregunta) {
+        return this.preguntasRepository.findById(idPregunta).get();
     }
 
     public List<PreguntaDTO> obtenerListPreguntas(Long idCategoria, int limite) {
@@ -91,11 +93,10 @@ public class PreguntasService {
         } else {
             throw new RuntimeException("No se pueden añadir más preguntas a esta categoría");
         }
-
     }
 
     public CategoriaEntity buscarCategoria(Long idCategoria) {
-        return this.categoriaRepository.findById(idCategoria).orElse(null);
+        return this.categoriaService.obtenerCategoriaEntity(idCategoria);
     }
 
     public int obtenerCantidadPreguntasPorCategoria(Long idCategoria) {
@@ -116,21 +117,11 @@ public class PreguntasService {
         return null;
     }
 
-    public ResultadoPreguntaRespondidaDTO responderPregunta(String uid, RespuestaUsuarioDTO respuestaUsuario) {
-        PreguntasEntity preguntaEntity = this.preguntasRepository.findById(respuestaUsuario.getIdPregunta()).get();
-        boolean respuestaEsCorrecta = respuestaUsuario.getRespuestaSeleccionada().equalsIgnoreCase(preguntaEntity.getRespuesta_correcta());
-
-        if (respuestaEsCorrecta) {
-            return this.usuarioService.acertarPregunta(uid, preguntaEntity.getDificultad(), respuestaUsuario.getIdPregunta());
-        } else {
-            return this.usuarioService.fallarPregunta(uid, preguntaEntity.getRespuesta_correcta());
-        }
-
-    }
 
     private Integer verificarIndicePregunta(Long idPregunta) {
         PreguntasEntity preguntaEntity = this.preguntasRepository.findById(idPregunta).get();
         return 0;
     }
+
 
 }

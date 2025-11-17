@@ -12,4 +12,5 @@ public interface CategoriaMapper {
     CategoriaMapper INSTANCE = Mappers.getMapper(CategoriaMapper.class);
 
     CategoriaDTO toDTO(CategoriaEntity categoria);
+
 }

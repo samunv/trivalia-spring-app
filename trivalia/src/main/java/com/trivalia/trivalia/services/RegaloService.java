@@ -14,10 +14,10 @@ import com.trivalia.trivalia.model.Regalo;
 public class RegaloService {
 
     private static final Random random = new Random();
-    private final UsuarioRepository usuarioRepository;
+    private final UsuarioService usuarioService;
 
-    public RegaloService(UsuarioRepository usuarioRepository) {
-        this.usuarioRepository = usuarioRepository;
+    public RegaloService(UsuarioService usuarioService) {
+        this.usuarioService = usuarioService;
     }
 
     public Regalo obtenerRegalo(String uid) {
@@ -51,10 +51,8 @@ public class RegaloService {
     }
 
     public boolean verificarRegaloDisponible(String uid) {
-        UsuarioEntity entity = this.usuarioRepository.findById(uid)
-                .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado con UID: " + uid));
-
-        return entity.getRegaloDisponible();
+        UsuarioEntity usuarioEntity = this.usuarioService.obtenerUsuarioEntity(uid);
+        return usuarioEntity.getRegaloDisponible();
     }
 
 }

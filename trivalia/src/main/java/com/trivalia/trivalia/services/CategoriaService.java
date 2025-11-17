@@ -22,13 +22,9 @@ import com.trivalia.trivalia.repositories.CategoriaRepository;
 public class CategoriaService {
 
     private final CategoriaRepository categoriaRepository;
-    private final PreguntasRepository preguntasRepository;
-    private final UsuarioRepository usuarioRepository;
 
-    public CategoriaService(CategoriaRepository categoriaRepository, PreguntasRepository preguntasRepository, UsuarioRepository usuarioRepository) {
+    public CategoriaService(CategoriaRepository categoriaRepository) {
         this.categoriaRepository = categoriaRepository;
-        this.preguntasRepository = preguntasRepository;
-        this.usuarioRepository = usuarioRepository;
     }
 
     public List<CategoriaDTO> obtenerCategorias() {
@@ -44,6 +40,10 @@ public class CategoriaService {
         CategoriaEntity categoriaEntity = this.categoriaRepository.findById(idCategoria).orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
         CategoriaDTO dto = CategoriaMapper.INSTANCE.toDTO(categoriaEntity);
         return dto;
+    }
+
+    public CategoriaEntity obtenerCategoriaEntity(Long idCategoria) {
+        return this.categoriaRepository.findById(idCategoria).orElse(null);
     }
 
 //    public int ObtenerCantidadPreguntas(Long idCategoria) {
