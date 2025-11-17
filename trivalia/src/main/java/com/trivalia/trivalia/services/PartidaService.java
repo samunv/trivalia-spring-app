@@ -29,10 +29,7 @@ public class PartidaService {
     }
 
     public boolean continuarConMonedas(String uid, Integer monedasRequeridas) {
-        if (this.usuarioService.descontarMonedas(uid, monedasRequeridas)) {
-            return true;
-        }
-        return false;
+        return this.usuarioService.descontarMonedas(uid, monedasRequeridas);
     }
 
     public boolean ganarPartida(String uid) {

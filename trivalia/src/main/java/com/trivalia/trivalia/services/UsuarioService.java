@@ -137,7 +137,7 @@ public class UsuarioService {
             }
         }
 
-        this.usuarioRepository.save(entity);
+        this.guardarUsuario(entity);
 
         return true;
     }
@@ -217,8 +217,6 @@ public class UsuarioService {
     private boolean verificarMonedas(UsuarioEntity usuarioEntity, Integer monedasRequeridas){
         Integer monedasUsuario = usuarioEntity.getMonedas();
         if (monedasRequeridas <= monedasUsuario) {
-            usuarioEntity.setMonedas(monedasUsuario - monedasRequeridas);
-            this.guardarUsuario(usuarioEntity);
             return true;
         }
         return false;

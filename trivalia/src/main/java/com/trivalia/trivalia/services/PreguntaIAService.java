@@ -26,7 +26,7 @@ public class PreguntaIAService {
                 = this.obtenerContentConfig();
 
         GenerateContentResponse response
-                = this.clienteGemini.models.generateContent("gemini-2.5-flash", PROMPT, configuracionContenido);
+                = this.clienteGemini.models.generateContent("gemini-2.5-flash-lite", PROMPT, configuracionContenido);
 
         String json = response.text();
 
