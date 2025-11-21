@@ -1,5 +1,7 @@
 package com.trivalia.trivalia.services;
 
+import com.trivalia.trivalia.utils.ConversorJsonObjeto;
+import com.trivalia.trivalia.utils.IA;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -13,48 +15,23 @@ import com.trivalia.trivalia.model.PreguntaDTO;
 @Service
 public class PreguntaIAService {
 
-    private Client clienteGemini;
+    private final Client clienteGemini;
+    private final GenerateContentConfig configuracionContenido;
     @Value("${ia.api.key}")
     private String IA_API_KEY;
 
+    public PreguntaIAService(Client clienteGemini, GenerateContentConfig configuracionContenido) {
+        this.clienteGemini = clienteGemini;
+        this.configuracionContenido = configuracionContenido;
+    }
+
     public PreguntaDTO generarPreguntaIA() {
-        String PROMPT = this.obtenerPrompt();
-        this.clienteGemini = Client.builder().apiKey(IA_API_KEY).build();
-
-        // Obtener configuración del contenido del modelo
-        GenerateContentConfig configuracionContenido
-                = this.obtenerContentConfig();
-
-        GenerateContentResponse response
-                = this.clienteGemini.models.generateContent("gemini-2.5-flash-lite", PROMPT, configuracionContenido);
-
-        String json = response.text();
-
-        PreguntaDTO preguntaDto = this.convertirJSONenPreguntaDTO(json);
-
-        return preguntaDto;
+        IA ia = new IA();
+        PreguntaDTO preguntaDTO = ia.obtenerRespuestaIA(clienteGemini, this.obtenerPromptPregunta(), this.configuracionContenido, PreguntaDTO.class);
+        return preguntaDTO;
     }
 
-    private PreguntaDTO convertirJSONenPreguntaDTO(String jsonPregunta) {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            PreguntaDTO pregunta = mapper.readValue(jsonPregunta, PreguntaDTO.class);
-            return pregunta;
-        } catch (JsonProcessingException e) {
-            System.err.println("Error de JSON Parsing: La IA no devolvió el formato esperado.");
-            e.printStackTrace();
-            return new PreguntaDTO();
-        }
-
-    }
-
-    private GenerateContentConfig obtenerContentConfig() {
-        return GenerateContentConfig.builder().temperature(0.8f)
-                .responseMimeType("application/json")
-                .build();
-    }
-
-    private String obtenerPrompt() {
+    private String obtenerPromptPregunta() {
         return "Genera una pregunta de trivia considerablemente de dificultad 'MEDIO' (que se traduce en dificultad media), de cultura general, que pueda ser resuelto para la media de personas, pero no puede ser tampoco muy sencilla ni fácil de acertar. \n"
                 + "Puede ser de cualquier tema (Por ejemplo equipos de fútbol, música general, ciencia, naturaleza, etc.). Es necesario que el enunciado o pregunta no sea muy larga. Está prohibido que en las opciones se incluyan pistas. Debe estar en formato JSON con las siguientes claves: "
                 + "{ \"pregunta\": \"\", \"opcion_a\": \"\", \"opcion_b\": \"\", \"opcion_c\": \"\", "

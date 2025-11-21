@@ -45,8 +45,7 @@ package com.trivalia.trivalia.exFirebaseConfig;
 //             // Crear una Autentication válida para Spring Security
 //             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
 //                     decodedToken.getUid(), // principal
-//                     null // credenciales (no necesarias),
-//                     ,
+//                     null // credenciales (no necesarias)
 //                      List.of(new SimpleGrantedAuthority("USER"))
 //             );
 

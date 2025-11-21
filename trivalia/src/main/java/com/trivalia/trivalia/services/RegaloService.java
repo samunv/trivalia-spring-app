@@ -4,6 +4,8 @@ import java.util.NoSuchElementException;
 import java.util.Random;
 
 import com.trivalia.trivalia.entities.UsuarioEntity;
+import com.trivalia.trivalia.enums.Operaciones;
+import com.trivalia.trivalia.model.UsuarioDTO;
 import com.trivalia.trivalia.repositories.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +28,8 @@ public class RegaloService {
         } else {
             Item itemAleatorio = this.generarItemAleatorio();
             Integer cantidadAleatoria = this.generarCantidadAleatoriaDeItem(itemAleatorio);
+            this.actualizarItemUsuario(itemAleatorio, cantidadAleatoria, uid, Operaciones.sumar);
+            this.actualizarDisponibilidadRegaloUsuario(uid);
             return new Regalo(itemAleatorio, cantidadAleatoria);
         }
 
@@ -54,5 +58,18 @@ public class RegaloService {
         UsuarioEntity usuarioEntity = this.usuarioService.obtenerUsuarioEntity(uid);
         return usuarioEntity.getRegaloDisponible();
     }
+
+
+    public void actualizarItemUsuario(Item item, Integer cantidad, String uid, Operaciones operacion) {
+        this.usuarioService.actualizarItem(item, cantidad, uid, operacion);
+    }
+
+    public void actualizarDisponibilidadRegaloUsuario(String uid){
+        this.usuarioService.actualizarRegaloDisponible(uid, false);
+    }
+
+//    public UsuarioDTO obtenerUsuarioDTO(String uid) {
+//        return this.usuarioService.obtenerUsuario(uid);
+//    }
 
 }
