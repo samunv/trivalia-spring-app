@@ -87,7 +87,7 @@ public class PreguntasService {
         pregunta.setImagenURL(dto.getImagenURL());
 
         if (this.obtenerCantidadPreguntasPorCategoria(dto.getIdCategoria()) <= 15) {
-            CategoriaEntity categoria = this.buscarCategoria(dto.getIdCategoria());
+            CategoriaEntity categoria = this.obtenerCategoria(dto.getIdCategoria());
             pregunta.setCategoria(categoria);
             return preguntasRepository.save(pregunta);
         } else {
@@ -95,7 +95,7 @@ public class PreguntasService {
         }
     }
 
-    public CategoriaEntity buscarCategoria(Long idCategoria) {
+    public CategoriaEntity obtenerCategoria(Long idCategoria) {
         return this.categoriaService.obtenerCategoriaEntity(idCategoria);
     }
 
@@ -118,9 +118,11 @@ public class PreguntasService {
     }
 
 
-    private Integer verificarIndicePregunta(Long idPregunta) {
-        PreguntasEntity preguntaEntity = this.preguntasRepository.findById(idPregunta).get();
-        return 0;
+    public boolean verificarIndexPregunta(Long idPregunta) {
+        Long idCategoria = this.obtenerPregunta(idPregunta).getCategoria().getIdCategoria();
+        List<PreguntasEntity> preguntasEntityList = this.obtenerListPreguntas(idCategoria);
+        Long ultimoIdPregunta = preguntasEntityList.get(preguntasEntityList.size()-1).getIdPregunta();
+        return idPregunta.equals(ultimoIdPregunta);
     }
 
 
