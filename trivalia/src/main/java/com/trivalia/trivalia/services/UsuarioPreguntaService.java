@@ -70,9 +70,9 @@ public class UsuarioPreguntaService {
         resultadoPreguntaDTO.setCantidadItemAfectada(cantidadAfectada);
         resultadoPreguntaDTO.setContinuar(esCorrecta);
         resultadoPreguntaDTO.setUsuarioActualizado(usuarioActualizado);
-        resultadoPreguntaDTO.setPreguntaIndex(this.obtenerPreguntaIndex(idPregunta, idCategoria));
-
-        resultadoPreguntaDTO.setSiguientePregunta(this.obtenerSiguientePregunta(idCategoria, idPregunta));
+        PreguntaDTO siguientePregunta = this.obtenerSiguientePregunta(idCategoria, idPregunta);
+        resultadoPreguntaDTO.setSiguientePregunta(siguientePregunta);
+        resultadoPreguntaDTO.setPreguntaIndex(this.obtenerPreguntaIndex(siguientePregunta.getIdPregunta(), idCategoria));
 
         return resultadoPreguntaDTO;
     }
