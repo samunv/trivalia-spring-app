@@ -2,7 +2,9 @@ package com.trivalia.trivalia.controllers;
 
 import com.trivalia.trivalia.model.PreguntaDTO;
 import com.trivalia.trivalia.model.RespuestaUsuarioDTO;
+import com.trivalia.trivalia.model.ResultadoPreguntaRespondidaDTO;
 import com.trivalia.trivalia.services.PartidaService;
+import com.trivalia.trivalia.services.UsuarioPreguntaService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +29,11 @@ public class PartidaController {
         return resultado;
     }
 
+    @GetMapping("obtener-primera/{idCategoria}")
+    public PreguntaDTO obtenerPrimeraPregunta(@PathVariable Long idCategoria) {
+        return this.partidaService.obtenerPrimeraPregunta(idCategoria);
+    }
+
     @PreAuthorize("#uid == authentication.name")
     @PostMapping("/ganar/{uid}")
     public Map<String, Boolean> ganar(@PathVariable String uid, @RequestBody PreguntaDTO preguntaDTO) {
@@ -49,5 +56,11 @@ public class PartidaController {
         Map<String, Boolean> resultado = new HashMap<>();
         resultado.put("resultado", this.partidaService.continuarConMonedas(uid, 300));
         return resultado;
+    }
+
+    @PreAuthorize("#uid == authentication.name")
+    @PostMapping("/responder-pregunta/{uid}")
+    public ResultadoPreguntaRespondidaDTO responderPregunta(@PathVariable String uid, @RequestBody RespuestaUsuarioDTO respuestaUsuario) {
+        return this.partidaService.responderPregunta(uid, respuestaUsuario);
     }
 }

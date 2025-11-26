@@ -1,24 +1,34 @@
 package com.trivalia.trivalia.services;
 
+import com.trivalia.trivalia.entities.PreguntasEntity;
 import com.trivalia.trivalia.entities.UsuarioEntity;
 import com.trivalia.trivalia.enums.Item;
 import com.trivalia.trivalia.enums.Operaciones;
+import com.trivalia.trivalia.mappers.PreguntaMapper;
 import com.trivalia.trivalia.mappers.UsuarioMapper;
 import com.trivalia.trivalia.model.PreguntaDTO;
 import com.trivalia.trivalia.model.RespuestaUsuarioDTO;
+import com.trivalia.trivalia.model.ResultadoPreguntaRespondidaDTO;
 import com.trivalia.trivalia.model.UsuarioDTO;
 import com.trivalia.trivalia.repositories.UsuarioRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class PartidaService {
 
     private final UsuarioService usuarioService;
     private final PreguntasService preguntasService;
+    private final CategoriaService categoriaService;
+    private final UsuarioPreguntaService usuarioPreguntaService;
 
-    public PartidaService(UsuarioService usuarioService, PreguntasService preguntasService) {
+    public PartidaService(UsuarioService usuarioService, PreguntasService preguntasService, CategoriaService categoriaService, UsuarioPreguntaService usuarioPreguntaService) {
         this.usuarioService = usuarioService;
         this.preguntasService = preguntasService;
+        this.categoriaService = categoriaService;
+        this.usuarioPreguntaService = usuarioPreguntaService;
     }
 
     public boolean jugarPartida(String uid) {
@@ -53,6 +63,16 @@ public class PartidaService {
     public boolean verificarIndexPregunta(Long idPregunta) {
         return this.preguntasService.verificarIndexPregunta(idPregunta);
     }
+
+    public PreguntaDTO obtenerPrimeraPregunta(Long idCategoria) {
+        List<PreguntasEntity> listaPreguntas = this.preguntasService.obtenerListPreguntas(idCategoria);
+        return  PreguntaMapper.INSTANCE.toDTO(listaPreguntas.get(0));
+    }
+
+    public ResultadoPreguntaRespondidaDTO responderPregunta(String uid, RespuestaUsuarioDTO respuestaUsuario){
+        return this.usuarioPreguntaService.responderPregunta(uid, respuestaUsuario);
+    }
+
 
 
 }

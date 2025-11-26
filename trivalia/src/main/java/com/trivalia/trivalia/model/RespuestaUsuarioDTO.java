@@ -3,6 +3,7 @@ package com.trivalia.trivalia.model;
 public class RespuestaUsuarioDTO {
 
     private Long idPregunta;
+    private Long idCategoria;
     private String respuestaSeleccionada;
 
     public RespuestaUsuarioDTO() {
@@ -22,5 +23,13 @@ public class RespuestaUsuarioDTO {
 
     public void setRespuestaseleccionada(String respuestaSeleccionada) {
         this.respuestaSeleccionada = respuestaSeleccionada;
+    }
+
+    public Long getIdCategoria() {
+        return idCategoria;
+    }
+
+    public void setIdCategoria(Long idCategoria) {
+        this.idCategoria = idCategoria;
     }
 }

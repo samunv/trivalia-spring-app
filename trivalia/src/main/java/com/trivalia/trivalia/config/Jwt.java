@@ -10,10 +10,16 @@ import java.util.Date;
 
 @Component
 public class Jwt {
+    private final Key key;
 
-    @Value("${jwt.firma}")
-    private String jwtFirma;
-    private final Key key = Keys.hmacShaKeyFor("MiClaveSuperSecretaQueDebeSerLarga1234567890".getBytes());
+    // Inyecta la firma JWT al crear el bean.
+    public Jwt(@Value("${jwt.firma}") String jwtFirma) {
+        if (jwtFirma == null || jwtFirma.isEmpty()) {
+            throw new IllegalArgumentException("La propiedad 'jwt.firma' no puede ser nula o vacía.");
+        }
+        // contiene el valor inyectado por Spring.
+        this.key = Keys.hmacShaKeyFor(jwtFirma.getBytes());
+    }
 
     public String generarToken(String uid) {
         return Jwts.builder()

@@ -27,13 +27,9 @@ public class AuthController {
         try {
             // Validar token Firebase
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(fb.getFirebaseToken());
-
-            // Generar tu JWT propio
             String token = jwt.generarToken(decodedToken.getUid());
-
             Map<String, String> tokenMap = new HashMap<>();
-            tokenMap.put("token", token);   
-
+            tokenMap.put("token", token);
             return tokenMap;
 
         } catch (FirebaseAuthException e) {

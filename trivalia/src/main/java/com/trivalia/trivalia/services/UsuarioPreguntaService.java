@@ -4,6 +4,8 @@ import com.trivalia.trivalia.entities.PreguntasEntity;
 import com.trivalia.trivalia.entities.UsuarioEntity;
 import com.trivalia.trivalia.enums.Item;
 import com.trivalia.trivalia.enums.Operaciones;
+import com.trivalia.trivalia.mappers.PreguntaMapper;
+import com.trivalia.trivalia.model.PreguntaDTO;
 import com.trivalia.trivalia.model.RespuestaUsuarioDTO;
 import com.trivalia.trivalia.model.ResultadoPreguntaRespondidaDTO;
 import com.trivalia.trivalia.model.UsuarioDTO;
@@ -28,38 +30,38 @@ public class UsuarioPreguntaService {
         boolean respuestaEsCorrecta = respuestaUsuario.getRespuestaSeleccionada().equalsIgnoreCase(preguntaEntity.getRespuesta_correcta());
 
         if (respuestaEsCorrecta) {
-            return this.acertarPregunta(uid, preguntaEntity.getDificultad(), respuestaUsuario.getIdPregunta());
+            return this.acertarPregunta(uid, preguntaEntity.getDificultad(), respuestaUsuario.getIdPregunta(), respuestaUsuario.getIdCategoria());
         } else {
-            return this.fallarPregunta(uid, preguntaEntity.getRespuesta_correcta());
+            return this.fallarPregunta(uid, preguntaEntity.getRespuesta_correcta(), respuestaUsuario.getIdPregunta(), respuestaUsuario.getIdCategoria());
         }
 
     }
 
-    public ResultadoPreguntaRespondidaDTO acertarPregunta(String uid, PreguntasEntity.Dificultad dificultad, Long idPregunta) {
+    public ResultadoPreguntaRespondidaDTO acertarPregunta(String uid, PreguntasEntity.Dificultad dificultad, Long idPregunta, Long idCategoria) {
         Integer calculoEstrellas = this.calcularEstrellasSegunDificultad(dificultad);
         if (this.usuarioService.actualizarItem(Item.estrellas, calculoEstrellas, uid, Operaciones.sumar)) {
             this.insertarPreguntaGanada(idPregunta, uid);
             UsuarioDTO usuarioDTO = this.usuarioService.obtenerUsuario(uid);
-            return this.obtenerResultadoPreguntaRespondidaDTO(true, "¡Correcto!", Item.estrellas, calculoEstrellas, usuarioDTO);
+            return this.obtenerResultadoPreguntaRespondidaDTO(true, "¡Correcto!", Item.estrellas, calculoEstrellas, usuarioDTO, idPregunta, idCategoria);
         } else {
             return null;
         }
     }
 
-    public ResultadoPreguntaRespondidaDTO fallarPregunta(String uid, String respuestaCorrecta) {
+    public ResultadoPreguntaRespondidaDTO fallarPregunta(String uid, String respuestaCorrecta, Long idPregunta, Long idCategoria) {
         Integer vidasRestar = 1;
         if (this.usuarioService.actualizarItem(Item.vidas, vidasRestar, uid, Operaciones.restar)) {
 
             UsuarioDTO usuarioDTO = this.usuarioService.obtenerUsuario(uid);
             usuarioDTO.setCantidadPreguntasFalladas(this.usuarioService.actualizarCantidadPreguntasFalladas(uid));
 
-            return this.obtenerResultadoPreguntaRespondidaDTO(false, "¡Incorrecto! Respuesta correcta: " + respuestaCorrecta, Item.vidas, vidasRestar, usuarioDTO);
+            return this.obtenerResultadoPreguntaRespondidaDTO(false, "¡Incorrecto! Respuesta correcta: " + respuestaCorrecta, Item.vidas, vidasRestar, usuarioDTO, idPregunta, idCategoria);
         } else {
             return null;
         }
     }
 
-    private ResultadoPreguntaRespondidaDTO obtenerResultadoPreguntaRespondidaDTO(boolean esCorrecta, String mensaje, Item item, Integer cantidadAfectada, UsuarioDTO usuarioActualizado) {
+    private ResultadoPreguntaRespondidaDTO obtenerResultadoPreguntaRespondidaDTO(boolean esCorrecta, String mensaje, Item item, Integer cantidadAfectada, UsuarioDTO usuarioActualizado, Long idPregunta, Long idCategoria) {
         ResultadoPreguntaRespondidaDTO resultadoPreguntaDTO = new ResultadoPreguntaRespondidaDTO();
 
         resultadoPreguntaDTO.setEsCorrecta(esCorrecta);
@@ -68,6 +70,9 @@ public class UsuarioPreguntaService {
         resultadoPreguntaDTO.setCantidadItemAfectada(cantidadAfectada);
         resultadoPreguntaDTO.setContinuar(esCorrecta);
         resultadoPreguntaDTO.setUsuarioActualizado(usuarioActualizado);
+        if(esCorrecta){
+            resultadoPreguntaDTO.setSiguientePregunta(this.obtenerSiguientePregunta(idCategoria, idPregunta));
+        }
         return resultadoPreguntaDTO;
     }
 
@@ -100,5 +105,22 @@ public class UsuarioPreguntaService {
         }
 
         return pregunta.getIdPregunta();
+    }
+
+    public PreguntaDTO obtenerSiguientePregunta(Long idCategoria, Long idPreguntaActual) {
+        List<PreguntasEntity> listaPreguntas = this.preguntasService.obtenerListPreguntas(idCategoria);
+        List<Long> listaIdsPreguntas = listaPreguntas.stream().map(PreguntasEntity::getIdPregunta).toList();
+        int indiceActual = listaIdsPreguntas.indexOf(idPreguntaActual);
+        // El índice del elemento siguiente es:
+        int indiceSiguiente = indiceActual + 1;
+        // Verificación de Límite
+        if (indiceSiguiente < listaPreguntas.size()) {
+            // 2. Obtener el elemento
+            PreguntasEntity preguntaSiguiente = listaPreguntas.get(indiceSiguiente);
+            return PreguntaMapper.INSTANCE.toDTO(preguntaSiguiente);
+        } else {
+            System.out.println("El índice actual (" + indiceActual + ") es el último, no hay un elemento siguiente.");
+            return null;
+        }
     }
 }
