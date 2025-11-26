@@ -55,7 +55,7 @@ public class UsuarioPreguntaService {
             UsuarioDTO usuarioDTO = this.usuarioService.obtenerUsuario(uid);
             usuarioDTO.setCantidadPreguntasFalladas(this.usuarioService.actualizarCantidadPreguntasFalladas(uid));
 
-            return this.obtenerResultadoPreguntaRespondidaDTO(false, "¡Incorrecto! Respuesta correcta: " + respuestaCorrecta, Item.vidas, vidasRestar, usuarioDTO, idPregunta, idCategoria);
+            return this.obtenerResultadoPreguntaRespondidaDTO(false, "¡Incorrecto!", Item.vidas, vidasRestar, usuarioDTO, idPregunta, idCategoria);
         } else {
             return null;
         }
@@ -70,9 +70,10 @@ public class UsuarioPreguntaService {
         resultadoPreguntaDTO.setCantidadItemAfectada(cantidadAfectada);
         resultadoPreguntaDTO.setContinuar(esCorrecta);
         resultadoPreguntaDTO.setUsuarioActualizado(usuarioActualizado);
-        if(esCorrecta){
-            resultadoPreguntaDTO.setSiguientePregunta(this.obtenerSiguientePregunta(idCategoria, idPregunta));
-        }
+        resultadoPreguntaDTO.setPreguntaIndex(this.obtenerPreguntaIndex(idPregunta, idCategoria));
+
+        resultadoPreguntaDTO.setSiguientePregunta(this.obtenerSiguientePregunta(idCategoria, idPregunta));
+
         return resultadoPreguntaDTO;
     }
 
@@ -105,6 +106,11 @@ public class UsuarioPreguntaService {
         }
 
         return pregunta.getIdPregunta();
+    }
+
+    public Integer obtenerPreguntaIndex(Long idPregunta, Long idCategoria) {
+        List<PreguntasEntity> preguntas = this.preguntasService.obtenerListPreguntas(idCategoria);
+        return preguntas.indexOf(this.preguntasService.obtenerPregunta(idPregunta)) + 1;
     }
 
     public PreguntaDTO obtenerSiguientePregunta(Long idCategoria, Long idPreguntaActual) {

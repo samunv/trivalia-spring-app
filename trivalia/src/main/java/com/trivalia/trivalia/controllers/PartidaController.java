@@ -50,6 +50,8 @@ public class PartidaController {
         return resultado;
     }
 
+
+
     @PreAuthorize("#uid == authentication.name")
     @GetMapping("/jugar-ia/{uid}")
     public Map<String, Boolean> jugarIa(@PathVariable String uid) {
