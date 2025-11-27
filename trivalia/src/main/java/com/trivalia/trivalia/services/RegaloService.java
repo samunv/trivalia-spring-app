@@ -1,12 +1,11 @@
 package com.trivalia.trivalia.services;
 
-import java.util.NoSuchElementException;
 import java.util.Random;
 
 import com.trivalia.trivalia.entities.UsuarioEntity;
 import com.trivalia.trivalia.enums.Operaciones;
-import com.trivalia.trivalia.model.UsuarioDTO;
-import com.trivalia.trivalia.repositories.UsuarioRepository;
+import com.trivalia.trivalia.services.interfaces.UsuarioLecturaServiceInterface;
+import com.trivalia.trivalia.services.interfaces.UsuarioServiceInterface;
 import org.springframework.stereotype.Service;
 
 import com.trivalia.trivalia.enums.Item;
@@ -16,10 +15,12 @@ import com.trivalia.trivalia.model.Regalo;
 public class RegaloService {
 
     private static final Random random = new Random();
-    private final UsuarioService usuarioService;
+    private final UsuarioServiceInterface usuarioService;
+    private final UsuarioLecturaServiceInterface usuarioLecturaService;
 
-    public RegaloService(UsuarioService usuarioService) {
+    public RegaloService(UsuarioServiceInterface usuarioService,  UsuarioLecturaServiceInterface usuarioLecturaService) {
         this.usuarioService = usuarioService;
+        this.usuarioLecturaService = usuarioLecturaService;
     }
 
     public Regalo obtenerRegalo(String uid) {
@@ -55,7 +56,7 @@ public class RegaloService {
     }
 
     public boolean verificarRegaloDisponible(String uid) {
-        UsuarioEntity usuarioEntity = this.usuarioService.obtenerUsuarioEntity(uid);
+        UsuarioEntity usuarioEntity = this.usuarioLecturaService.obtenerUsuarioEntity(uid);
         return usuarioEntity.getRegaloDisponible();
     }
 

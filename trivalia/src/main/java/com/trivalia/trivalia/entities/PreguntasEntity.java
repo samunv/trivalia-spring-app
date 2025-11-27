@@ -1,15 +1,8 @@
 package com.trivalia.trivalia.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "preguntas")
@@ -49,6 +42,10 @@ public class PreguntasEntity {
     @ManyToOne
     @JoinColumn(name = "id_categoria", nullable = false)
     private CategoriaEntity categoria;
+
+    @ManyToMany(mappedBy = "preguntasGanadas")
+    private List<UsuarioEntity> usuariosQueGanaron; // Nuevo campo
+
 
     public PreguntasEntity() {
     }
@@ -159,6 +156,14 @@ public class PreguntasEntity {
         this.dificultad = dificultad;
     }
 
+    public List<UsuarioEntity> getUsuariosQueGanaron() {
+        return usuariosQueGanaron;
+    }
+
+    public void setUsuariosQueGanaron(List<UsuarioEntity> usuariosQueGanaron) {
+        this.usuariosQueGanaron = usuariosQueGanaron;
+    }
+
 
     public enum TipoPregunta {
         OPCIONES,
@@ -171,4 +176,6 @@ public class PreguntasEntity {
         MEDIO,
         DIFICIL
     }
+
+
 }

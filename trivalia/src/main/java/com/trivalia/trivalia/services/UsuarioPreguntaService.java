@@ -4,11 +4,11 @@ import com.trivalia.trivalia.entities.PreguntasEntity;
 import com.trivalia.trivalia.entities.UsuarioEntity;
 import com.trivalia.trivalia.enums.Item;
 import com.trivalia.trivalia.enums.Operaciones;
-import com.trivalia.trivalia.mappers.PreguntaMapper;
-import com.trivalia.trivalia.model.PreguntaDTO;
-import com.trivalia.trivalia.model.RespuestaUsuarioDTO;
-import com.trivalia.trivalia.model.ResultadoPreguntaRespondidaDTO;
-import com.trivalia.trivalia.model.UsuarioDTO;
+import com.trivalia.trivalia.model.*;
+import com.trivalia.trivalia.model.builders.ResultadoPreguntaBuilder;
+import com.trivalia.trivalia.services.interfaces.PreguntaServiceInterface;
+import com.trivalia.trivalia.services.interfaces.UsuarioLecturaServiceInterface;
+import com.trivalia.trivalia.services.interfaces.UsuarioServiceInterface;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,12 +16,14 @@ import java.util.List;
 @Service
 public class UsuarioPreguntaService {
 
-    private final UsuarioService usuarioService;
-    private final PreguntasService preguntasService;
+    private final UsuarioServiceInterface usuarioService;
+    private final UsuarioLecturaServiceInterface usuarioLecturaService;
+    private final PreguntaServiceInterface preguntasService;
 
-    public UsuarioPreguntaService(UsuarioService usuarioService, PreguntasService preguntasService) {
+    public UsuarioPreguntaService(UsuarioServiceInterface usuarioService, PreguntaServiceInterface preguntasService,  UsuarioLecturaServiceInterface usuarioLecturaService) {
         this.usuarioService = usuarioService;
         this.preguntasService = preguntasService;
+        this.usuarioLecturaService = usuarioLecturaService;
 
     }
 
@@ -41,7 +43,7 @@ public class UsuarioPreguntaService {
         Integer calculoEstrellas = this.calcularEstrellasSegunDificultad(dificultad);
         if (this.usuarioService.actualizarItem(Item.estrellas, calculoEstrellas, uid, Operaciones.sumar)) {
             this.insertarPreguntaGanada(idPregunta, uid);
-            UsuarioDTO usuarioDTO = this.usuarioService.obtenerUsuario(uid);
+            UsuarioDTO usuarioDTO = this.usuarioLecturaService.obtenerUsuario(uid);
             return this.obtenerResultadoPreguntaRespondidaDTO(true, "¡Correcto!", Item.estrellas, calculoEstrellas, usuarioDTO, idPregunta, idCategoria);
         } else {
             return null;
@@ -52,7 +54,7 @@ public class UsuarioPreguntaService {
         Integer vidasRestar = 1;
         if (this.usuarioService.actualizarItem(Item.vidas, vidasRestar, uid, Operaciones.restar)) {
 
-            UsuarioDTO usuarioDTO = this.usuarioService.obtenerUsuario(uid);
+            UsuarioDTO usuarioDTO = this.usuarioLecturaService.obtenerUsuario(uid);
             usuarioDTO.setCantidadPreguntasFalladas(this.usuarioService.actualizarCantidadPreguntasFalladas(uid));
 
             return this.obtenerResultadoPreguntaRespondidaDTO(false, "¡Incorrecto!", Item.vidas, vidasRestar, usuarioDTO, idPregunta, idCategoria);
@@ -61,21 +63,40 @@ public class UsuarioPreguntaService {
         }
     }
 
-    private ResultadoPreguntaRespondidaDTO obtenerResultadoPreguntaRespondidaDTO(boolean esCorrecta, String mensaje, Item item, Integer cantidadAfectada, UsuarioDTO usuarioActualizado, Long idPregunta, Long idCategoria) {
-        ResultadoPreguntaRespondidaDTO resultadoPreguntaDTO = new ResultadoPreguntaRespondidaDTO();
+    private ResultadoPreguntaRespondidaDTO obtenerResultadoPreguntaRespondidaDTO(
+            boolean esCorrecta,
+            String mensaje,
+            Item item,
+            Integer cantidadAfectada,
+            UsuarioDTO usuarioActualizado,
+            Long idPregunta,
+            Long idCategoria
+    ) {
 
-        resultadoPreguntaDTO.setEsCorrecta(esCorrecta);
-        resultadoPreguntaDTO.setMensaje(mensaje);
-        resultadoPreguntaDTO.setItemAfectado(item);
-        resultadoPreguntaDTO.setCantidadItemAfectada(cantidadAfectada);
-        resultadoPreguntaDTO.setContinuar(esCorrecta);
-        resultadoPreguntaDTO.setUsuarioActualizado(usuarioActualizado);
-        PreguntaDTO siguientePregunta = this.obtenerSiguientePregunta(idCategoria, idPregunta);
-        resultadoPreguntaDTO.setSiguientePregunta(siguientePregunta);
-        resultadoPreguntaDTO.setPreguntaIndex(this.obtenerPreguntaIndex(siguientePregunta.getIdPregunta(), idCategoria));
+        PreguntaDTO siguientePregunta = this.preguntasService.obtenerSiguientePregunta(idCategoria, idPregunta);
 
-        return resultadoPreguntaDTO;
+        Integer index = null;
+
+        // Si NO hay siguiente pregunta → fin del cuestionario
+        if (siguientePregunta != null) {
+            index = this.preguntasService.obtenerPreguntaIndex(
+                    siguientePregunta.getIdPregunta(),
+                    idCategoria
+            );
+        }
+
+        return new ResultadoPreguntaBuilder()
+                .esCorrecta(esCorrecta)
+                .mensaje(mensaje)
+                .itemAfectado(item)
+                .cantidadItemAfectada(cantidadAfectada)
+                .continuar(esCorrecta) // Solo continuar si hay más preguntas
+                .usuarioActualizado(usuarioActualizado)
+                .siguientePregunta(siguientePregunta)
+                .preguntaIndex(index)
+                .build();
     }
+
 
     private Integer calcularEstrellasSegunDificultad(PreguntasEntity.Dificultad dificultad) {
         return switch (dificultad) {
@@ -87,7 +108,7 @@ public class UsuarioPreguntaService {
 
     public Long insertarPreguntaGanada(Long idPregunta, String uid) {
 
-        UsuarioEntity usuario = this.usuarioService.obtenerUsuarioEntity(uid);
+        UsuarioEntity usuario = this.usuarioLecturaService.obtenerUsuarioEntity(uid);
 
         PreguntasEntity pregunta = this.preguntasService.obtenerPregunta(idPregunta);
 
@@ -108,25 +129,5 @@ public class UsuarioPreguntaService {
         return pregunta.getIdPregunta();
     }
 
-    public Integer obtenerPreguntaIndex(Long idPregunta, Long idCategoria) {
-        List<PreguntasEntity> preguntas = this.preguntasService.obtenerListPreguntas(idCategoria);
-        return preguntas.indexOf(this.preguntasService.obtenerPregunta(idPregunta)) + 1;
-    }
 
-    public PreguntaDTO obtenerSiguientePregunta(Long idCategoria, Long idPreguntaActual) {
-        List<PreguntasEntity> listaPreguntas = this.preguntasService.obtenerListPreguntas(idCategoria);
-        List<Long> listaIdsPreguntas = listaPreguntas.stream().map(PreguntasEntity::getIdPregunta).toList();
-        int indiceActual = listaIdsPreguntas.indexOf(idPreguntaActual);
-        // El índice del elemento siguiente es:
-        int indiceSiguiente = indiceActual + 1;
-        // Verificación de Límite
-        if (indiceSiguiente < listaPreguntas.size()) {
-            // 2. Obtener el elemento
-            PreguntasEntity preguntaSiguiente = listaPreguntas.get(indiceSiguiente);
-            return PreguntaMapper.INSTANCE.toDTO(preguntaSiguiente);
-        } else {
-            System.out.println("El índice actual (" + indiceActual + ") es el último, no hay un elemento siguiente.");
-            return null;
-        }
-    }
 }

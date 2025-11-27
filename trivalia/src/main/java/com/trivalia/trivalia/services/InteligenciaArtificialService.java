@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class InteligenciaArtificialService {
 
-
     private final Client clienteGemini;
     private final GenerateContentConfig configuracionContenido;
 

@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.trivalia.trivalia.services.UsuarioPreguntaService;
-import com.trivalia.trivalia.services.UsuarioService;
+import com.trivalia.trivalia.services.*;
+import com.trivalia.trivalia.services.interfaces.PreguntaServiceInterface;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,19 +20,16 @@ import com.trivalia.trivalia.mappers.PreguntaMapper;
 import com.trivalia.trivalia.model.PreguntaDTO;
 import com.trivalia.trivalia.model.RespuestaUsuarioDTO;
 import com.trivalia.trivalia.model.ResultadoPreguntaRespondidaDTO;
-import com.trivalia.trivalia.model.UsuarioDTO;
-import com.trivalia.trivalia.services.PreguntaIAService;
-import com.trivalia.trivalia.services.PreguntasService;
 
 @RestController
 @RequestMapping("/api/preguntas")
 public class PreguntasController {
 
-    private final PreguntasService preguntaService;
+    private final PreguntaServiceInterface preguntaService;
     private final PreguntaIAService preguntaIAService;
     private final UsuarioPreguntaService usuarioPreguntaService;
 
-    public PreguntasController(PreguntasService preguntaService, PreguntaIAService preguntaIAService, UsuarioPreguntaService usuarioPreguntaService) {
+    public PreguntasController(PreguntaServiceInterface preguntaService, PreguntaIAService preguntaIAService, UsuarioPreguntaService usuarioPreguntaService) {
         this.preguntaService = preguntaService;
         this.preguntaIAService = preguntaIAService;
         this.usuarioPreguntaService = usuarioPreguntaService;
@@ -40,12 +37,7 @@ public class PreguntasController {
 
     @GetMapping("/obtener/{id_categoria}/{limite}")
     public List<PreguntaDTO> obtenerPreguntasPorCategoria(@PathVariable Long id_categoria, @PathVariable int limite) {
-        return this.preguntaService.obtenerListPreguntas(id_categoria, limite);
-    }
-
-    @GetMapping("/aleatorias/{limite}")
-    public List<PreguntaDTO> obtenerPreguntasAleatorias(@PathVariable int limite) {
-        return this.preguntaService.obtenerListPreguntasAleatorias(limite);
+        return this.preguntaService.obtenerListPreguntasDTO(id_categoria);
     }
 
     @PostMapping("/crear")
@@ -75,12 +67,6 @@ public class PreguntasController {
         return dtoList;
     }
 
-    @GetMapping("/obtener-respuesta-correcta/{idPregunta}")
-    public Map<String, String> obtenerRespuestaCorrecta(@PathVariable Long idPregunta) {
-        Map<String, String> respuestaMap = new HashMap<>();
-        respuestaMap.put("respuesta_correcta", this.preguntaService.obtenerRespuestaCorrecta(idPregunta));
-        return respuestaMap;
-    }
 
     @GetMapping("/obtener-pregunta-ia")
     public PreguntaDTO obtenerPreguntaIA() {

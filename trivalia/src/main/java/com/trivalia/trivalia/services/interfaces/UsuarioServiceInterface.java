@@ -1,0 +1,29 @@
+package com.trivalia.trivalia.services.interfaces;
+
+import com.trivalia.trivalia.entities.UsuarioEntity;
+import com.trivalia.trivalia.enums.Item;
+import com.trivalia.trivalia.enums.Operaciones;
+import com.trivalia.trivalia.model.UsuarioDTO;
+
+public interface UsuarioServiceInterface {
+
+    // Posible interfaz
+    UsuarioDTO obtenerOCrearUsuario(UsuarioDTO dto);
+
+    UsuarioDTO guardarUsuario(UsuarioEntity entity);
+
+
+    // Posible interfaz de actualización
+
+    boolean actualizarItem(Item item, Integer cantidad, String uid, Operaciones operacion);
+
+    String actualizarRegaloDisponible(String uid, boolean disponible);
+
+    UsuarioDTO actualizarNombreFoto(String uid, UsuarioDTO usuarioDTO);
+
+    Integer actualizarCantidadPreguntasFalladas(String uid);
+
+    void anadirPartidaGanada(UsuarioEntity usuarioEntity);
+
+    boolean descontarMonedas(String uid, Integer monedasRequeridas);
+}

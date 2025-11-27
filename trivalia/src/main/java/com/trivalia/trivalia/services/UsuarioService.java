@@ -1,12 +1,12 @@
 package com.trivalia.trivalia.services;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import com.trivalia.trivalia.model.PreguntaDTO;
-import com.trivalia.trivalia.model.ResultadoPreguntaRespondidaDTO;
+import com.trivalia.trivalia.model.builders.UsuarioBuilder;
+import com.trivalia.trivalia.services.interfaces.UsuarioLecturaServiceInterface;
+import com.trivalia.trivalia.services.interfaces.UsuarioServiceInterface;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +16,10 @@ import com.trivalia.trivalia.enums.Item;
 import com.trivalia.trivalia.enums.Operaciones;
 import com.trivalia.trivalia.mappers.UsuarioMapper;
 import com.trivalia.trivalia.model.UsuarioDTO;
-import com.trivalia.trivalia.repositories.PreguntasRepository;
 import com.trivalia.trivalia.repositories.UsuarioRepository;
 
 @Service
-public class UsuarioService {
+public class UsuarioService implements UsuarioServiceInterface, UsuarioLecturaServiceInterface {
 
     private final UsuarioRepository usuarioRepository;
 
@@ -33,26 +32,24 @@ public class UsuarioService {
         if (this.usuarioRepository.existsById(dto.getUid())) {
             return this.obtenerUsuario(dto.getUid());
         } else {
-            return this.crearNuevoUsuario(dto);
+            UsuarioDTO usuarioDTO = new UsuarioBuilder()
+                    .uid(dto.getUid())
+                    .nombre(dto.getNombre())
+                    .email(dto.getEmail())
+                    .fotoURL(dto.getFotoURL())
+                    .estrellas(0)
+                    .monedas(250)
+                    .vidas(5)
+                    .cantidadPartidasGanadas(0)
+                    .cantidadPreguntasFalladas(0)
+                    .regaloDisponible(false)
+                    .build();
+            return this.guardarUsuario(UsuarioMapper.INSTANCE.toEntity(usuarioDTO));
         }
 
     }
 
-    public UsuarioDTO crearNuevoUsuario(UsuarioDTO dto) {
-        // Si no existe, crea uno nuevo
-        UsuarioEntity entity = new UsuarioEntity();
-        entity.setFotoURL(dto.getFotoURL());
-        entity.setNombre(dto.getNombre());
-        entity.setEmail(dto.getEmail());
-        entity.setUid(dto.getUid());
-        entity.setCantidadPartidasGanadas(0);
-        entity.setEstrellas(0);
-        entity.setMonedas(250);
-        entity.setVidas(5);
-        entity.setPreguntasGanadas(new ArrayList<>());
-        entity.setRegaloDisponible(false);
-        entity.setCantidadPreguntasFalladas(0);
-
+    public UsuarioDTO guardarUsuario(UsuarioEntity entity) {
         try {
             UsuarioEntity savedEntity = this.insertarNuevoUsuario(entity);
             UsuarioDTO dtoCreado = UsuarioMapper.INSTANCE.toDTO(savedEntity);
@@ -81,9 +78,6 @@ public class UsuarioService {
        return this.usuarioRepository.save(usuarioEntity);
     }
 
-    public void guardarUsuario(UsuarioEntity usuarioEntity) {
-        this.usuarioRepository.save(usuarioEntity);
-    }
 
     public UsuarioEntity obtenerUsuarioEntity(String uid) {
         Optional<UsuarioEntity> usuarioOpt = this.usuarioRepository.findByIdWithPreguntas(uid);

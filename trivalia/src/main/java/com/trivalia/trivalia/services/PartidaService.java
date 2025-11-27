@@ -1,33 +1,28 @@
 package com.trivalia.trivalia.services;
 
-import com.trivalia.trivalia.entities.PreguntasEntity;
 import com.trivalia.trivalia.entities.UsuarioEntity;
 import com.trivalia.trivalia.enums.Item;
 import com.trivalia.trivalia.enums.Operaciones;
-import com.trivalia.trivalia.mappers.PreguntaMapper;
-import com.trivalia.trivalia.mappers.UsuarioMapper;
 import com.trivalia.trivalia.model.PreguntaDTO;
 import com.trivalia.trivalia.model.RespuestaUsuarioDTO;
 import com.trivalia.trivalia.model.ResultadoPreguntaRespondidaDTO;
-import com.trivalia.trivalia.model.UsuarioDTO;
-import com.trivalia.trivalia.repositories.UsuarioRepository;
+import com.trivalia.trivalia.services.interfaces.PreguntaServiceInterface;
+import com.trivalia.trivalia.services.interfaces.UsuarioLecturaServiceInterface;
+import com.trivalia.trivalia.services.interfaces.UsuarioServiceInterface;
 import org.springframework.stereotype.Service;
-
-import java.util.Arrays;
-import java.util.List;
 
 @Service
 public class PartidaService {
 
-    private final UsuarioService usuarioService;
-    private final PreguntasService preguntasService;
-    private final CategoriaService categoriaService;
+    private final UsuarioServiceInterface usuarioService;
+    private final UsuarioLecturaServiceInterface usuarioLecturaService;
+    private final PreguntaServiceInterface preguntasService;
     private final UsuarioPreguntaService usuarioPreguntaService;
 
-    public PartidaService(UsuarioService usuarioService, PreguntasService preguntasService, CategoriaService categoriaService, UsuarioPreguntaService usuarioPreguntaService) {
+    public PartidaService(UsuarioServiceInterface usuarioService, UsuarioLecturaServiceInterface usuarioLecturaService ,PreguntaServiceInterface preguntasService, UsuarioPreguntaService usuarioPreguntaService) {
         this.usuarioService = usuarioService;
+        this.usuarioLecturaService = usuarioLecturaService;
         this.preguntasService = preguntasService;
-        this.categoriaService = categoriaService;
         this.usuarioPreguntaService = usuarioPreguntaService;
     }
 
@@ -37,7 +32,7 @@ public class PartidaService {
 
 
     private boolean comprobarVidasUsuario(String uid) {
-        com.trivalia.trivalia.entities.UsuarioEntity usuarioEntity = this.usuarioService.obtenerUsuarioEntity(uid);
+        com.trivalia.trivalia.entities.UsuarioEntity usuarioEntity = this.usuarioLecturaService.obtenerUsuarioEntity(uid);
         if (usuarioEntity.getVidas() >= 1) {
             return true;
         }
@@ -49,8 +44,8 @@ public class PartidaService {
     }
 
     public boolean ganarPartida(String uid, PreguntaDTO preguntaDTO) {
-        if (this.verificarIndexPregunta(preguntaDTO.getIdPregunta())) {
-            UsuarioEntity usuarioEntity = this.usuarioService.obtenerUsuarioEntity(uid);
+        if (this.preguntasService.esUltimaPreguntaDeCategoria(preguntaDTO.getIdPregunta())) {
+            UsuarioEntity usuarioEntity = this.usuarioLecturaService.obtenerUsuarioEntity(uid);
             this.usuarioService.anadirPartidaGanada(usuarioEntity);
             this.usuarioService.actualizarRegaloDisponible(uid, true);
             this.usuarioService.actualizarItem(Item.monedas, 100, uid, Operaciones.sumar);
@@ -60,13 +55,9 @@ public class PartidaService {
 
     }
 
-    public boolean verificarIndexPregunta(Long idPregunta) {
-        return this.preguntasService.verificarIndexPregunta(idPregunta);
-    }
 
     public PreguntaDTO obtenerPrimeraPregunta(Long idCategoria) {
-        List<PreguntasEntity> listaPreguntas = this.preguntasService.obtenerListPreguntas(idCategoria);
-        return  PreguntaMapper.INSTANCE.toDTO(listaPreguntas.get(0));
+        return  this.preguntasService.obtenerPrimeraPregunta(idCategoria);
     }
 
     public ResultadoPreguntaRespondidaDTO responderPregunta(String uid, RespuestaUsuarioDTO respuestaUsuario){

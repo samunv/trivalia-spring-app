@@ -80,3 +80,5 @@ public class ResultadoPreguntaRespondidaDTO {
         this.preguntaIndex = preguntaIndex;
     }
 }
+
+
