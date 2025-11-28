@@ -10,6 +10,7 @@ import com.trivalia.trivalia.mappers.UsuarioMapper;
 import com.trivalia.trivalia.model.UsuarioDTO;
 import com.trivalia.trivalia.repositories.PreguntasRepository;
 import com.trivalia.trivalia.repositories.UsuarioRepository;
+import com.trivalia.trivalia.services.interfaces.CategoriaServiceInterface;
 import org.springframework.stereotype.Service;
 
 import com.trivalia.trivalia.entities.CategoriaEntity;
@@ -19,7 +20,7 @@ import com.trivalia.trivalia.model.CategoriaDTO;
 import com.trivalia.trivalia.repositories.CategoriaRepository;
 
 @Service
-public class CategoriaService {
+public class CategoriaService implements CategoriaServiceInterface {
 
     private final CategoriaRepository categoriaRepository;
 
@@ -30,8 +31,7 @@ public class CategoriaService {
     public List<CategoriaDTO> obtenerCategorias() {
         List<CategoriaEntity> randomCategoriasList = new ArrayList<>(this.categoriaRepository.findAll());
         Collections.shuffle(randomCategoriasList);
-        List<CategoriaDTO> dtoList = randomCategoriasList.stream().map(entity
-                -> CategoriaMapper.INSTANCE.toDTO(entity)
+        List<CategoriaDTO> dtoList = randomCategoriasList.stream().map(CategoriaMapper.INSTANCE::toDTO
         ).toList();
         return dtoList;
     }
@@ -46,9 +46,5 @@ public class CategoriaService {
         return this.categoriaRepository.findById(idCategoria).orElse(null);
     }
 
-//    public int ObtenerCantidadPreguntas(Long idCategoria) {
-//        List<PreguntasEntity> preguntasList = this.preguntasRepository.findByCategoriaIdCategoria(idCategoria);
-//        return preguntasList.size();
-//    }
 
 }

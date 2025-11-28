@@ -5,8 +5,9 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import com.trivalia.trivalia.model.builders.UsuarioBuilder;
+import com.trivalia.trivalia.services.interfaces.UsuarioActualizarDatosServiceInterface;
+import com.trivalia.trivalia.services.interfaces.UsuarioGuardarServiceInterface;
 import com.trivalia.trivalia.services.interfaces.UsuarioLecturaServiceInterface;
-import com.trivalia.trivalia.services.interfaces.UsuarioServiceInterface;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,7 @@ import com.trivalia.trivalia.model.UsuarioDTO;
 import com.trivalia.trivalia.repositories.UsuarioRepository;
 
 @Service
-public class UsuarioService implements UsuarioServiceInterface, UsuarioLecturaServiceInterface {
+public class UsuarioService implements UsuarioLecturaServiceInterface, UsuarioGuardarServiceInterface, UsuarioActualizarDatosServiceInterface {
 
     private final UsuarioRepository usuarioRepository;
 

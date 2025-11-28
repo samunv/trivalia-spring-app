@@ -3,6 +3,8 @@ package com.trivalia.trivalia.controllers;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.trivalia.trivalia.model.FirebaseTokenDTO;
+import com.trivalia.trivalia.services.interfaces.AuthServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,60 +20,20 @@ import com.trivalia.trivalia.model.JwtClienteDTO;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+    private final AuthServiceInterface authServiceInterface;
 
-    @Autowired
-    Jwt jwt;
+    public AuthController(AuthServiceInterface authServiceInterface) {
+        this.authServiceInterface = authServiceInterface;
+    }
 
     @PostMapping("/login")
-    public Map<String, String> login(@RequestBody FirebaseTokenRequest fb) {
-        try {
-            // Validar token Firebase
-            FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(fb.getFirebaseToken());
-            String token = jwt.generarToken(decodedToken.getUid());
-            Map<String, String> tokenMap = new HashMap<>();
-            tokenMap.put("token", token);
-            return tokenMap;
-
-        } catch (FirebaseAuthException e) {
-            // Manejo de error
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Token de FB inválido");
-            return error;
-        }
+    public Map<String, String> login(@RequestBody FirebaseTokenDTO fb) {
+        return this.authServiceInterface.firebaseLogin(fb);
     }
 
     @PostMapping("/verificar-jwt")
     public Map<String, String> verificarJWTdelCliente(@RequestBody JwtClienteDTO jwtCliente) {
-        Map<String, String> respuestaMap = new HashMap<>();
-        try {
-            if (this.jwt.validarToken(jwtCliente.getJwtCliente())) {
-                respuestaMap.put("exito", "Token validado correctamente");
-            } else {
-                respuestaMap.put("error", "Error al validar el token");
-            }
-
-            return respuestaMap;
-
-        } catch (Exception e) {
-            // Manejo de error
-            respuestaMap.put("error", "Token JWT inválido");
-            return respuestaMap;
-        }
+        return this.authServiceInterface.validarJWT(jwtCliente);
     }
 
-    public static class FirebaseTokenRequest {
-
-        private String firebaseToken;
-
-        public FirebaseTokenRequest() {
-        }
-
-        public String getFirebaseToken() {
-            return firebaseToken;
-        }
-
-        public void setFirebaseToken(String firebaseToken) {
-            this.firebaseToken = firebaseToken;
-        }
-    }
 }

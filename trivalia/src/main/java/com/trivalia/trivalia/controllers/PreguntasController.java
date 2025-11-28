@@ -7,6 +7,8 @@ import java.util.Map;
 
 import com.trivalia.trivalia.services.*;
 import com.trivalia.trivalia.services.interfaces.PreguntaServiceInterface;
+import com.trivalia.trivalia.services.interfaces.PreguntasIAServiceInterface;
+import com.trivalia.trivalia.services.interfaces.UsuarioPreguntaServiceInterface;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,10 +28,10 @@ import com.trivalia.trivalia.model.ResultadoPreguntaRespondidaDTO;
 public class PreguntasController {
 
     private final PreguntaServiceInterface preguntaService;
-    private final PreguntaIAService preguntaIAService;
-    private final UsuarioPreguntaService usuarioPreguntaService;
+    private final PreguntasIAServiceInterface preguntaIAService;
+    private final UsuarioPreguntaServiceInterface usuarioPreguntaService;
 
-    public PreguntasController(PreguntaServiceInterface preguntaService, PreguntaIAService preguntaIAService, UsuarioPreguntaService usuarioPreguntaService) {
+    public PreguntasController(PreguntaServiceInterface preguntaService, PreguntasIAServiceInterface preguntaIAService, UsuarioPreguntaServiceInterface usuarioPreguntaService) {
         this.preguntaService = preguntaService;
         this.preguntaIAService = preguntaIAService;
         this.usuarioPreguntaService = usuarioPreguntaService;

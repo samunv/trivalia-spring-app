@@ -6,21 +6,19 @@ import com.trivalia.trivalia.enums.Operaciones;
 import com.trivalia.trivalia.model.PreguntaDTO;
 import com.trivalia.trivalia.model.RespuestaUsuarioDTO;
 import com.trivalia.trivalia.model.ResultadoPreguntaRespondidaDTO;
-import com.trivalia.trivalia.services.interfaces.PreguntaServiceInterface;
-import com.trivalia.trivalia.services.interfaces.UsuarioLecturaServiceInterface;
-import com.trivalia.trivalia.services.interfaces.UsuarioServiceInterface;
+import com.trivalia.trivalia.services.interfaces.*;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PartidaService {
+public class PartidaService implements PartidaServiceInterface {
 
-    private final UsuarioServiceInterface usuarioService;
+    private final UsuarioActualizarDatosServiceInterface usuarioActualizarDatosService;
     private final UsuarioLecturaServiceInterface usuarioLecturaService;
     private final PreguntaServiceInterface preguntasService;
-    private final UsuarioPreguntaService usuarioPreguntaService;
+    private final UsuarioPreguntaServiceInterface usuarioPreguntaService;
 
-    public PartidaService(UsuarioServiceInterface usuarioService, UsuarioLecturaServiceInterface usuarioLecturaService ,PreguntaServiceInterface preguntasService, UsuarioPreguntaService usuarioPreguntaService) {
-        this.usuarioService = usuarioService;
+    public PartidaService(UsuarioActualizarDatosServiceInterface usuarioActualizarDatosService, UsuarioLecturaServiceInterface usuarioLecturaService ,PreguntaServiceInterface preguntasService, UsuarioPreguntaServiceInterface usuarioPreguntaService) {
+        this.usuarioActualizarDatosService = usuarioActualizarDatosService;
         this.usuarioLecturaService = usuarioLecturaService;
         this.preguntasService = preguntasService;
         this.usuarioPreguntaService = usuarioPreguntaService;
@@ -40,15 +38,15 @@ public class PartidaService {
     }
 
     public boolean continuarConMonedas(String uid, Integer monedasRequeridas) {
-        return this.usuarioService.descontarMonedas(uid, monedasRequeridas);
+        return this.usuarioActualizarDatosService.descontarMonedas(uid, monedasRequeridas);
     }
 
     public boolean ganarPartida(String uid, PreguntaDTO preguntaDTO) {
         if (this.preguntasService.esUltimaPreguntaDeCategoria(preguntaDTO.getIdPregunta())) {
             UsuarioEntity usuarioEntity = this.usuarioLecturaService.obtenerUsuarioEntity(uid);
-            this.usuarioService.anadirPartidaGanada(usuarioEntity);
-            this.usuarioService.actualizarRegaloDisponible(uid, true);
-            this.usuarioService.actualizarItem(Item.monedas, 100, uid, Operaciones.sumar);
+            this.usuarioActualizarDatosService.anadirPartidaGanada(usuarioEntity);
+            this.usuarioActualizarDatosService.actualizarRegaloDisponible(uid, true);
+            this.usuarioActualizarDatosService.actualizarItem(Item.monedas, 100, uid, Operaciones.sumar);
             return true;
         }
         return false;

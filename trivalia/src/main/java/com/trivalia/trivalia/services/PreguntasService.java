@@ -3,6 +3,7 @@ package com.trivalia.trivalia.services;
 import java.util.List;
 
 import com.trivalia.trivalia.model.*;
+import com.trivalia.trivalia.services.interfaces.CategoriaServiceInterface;
 import com.trivalia.trivalia.services.interfaces.PreguntaServiceInterface;
 import org.springframework.stereotype.Service;
 
@@ -16,9 +17,9 @@ import com.trivalia.trivalia.repositories.PreguntasRepository;
 public class PreguntasService implements PreguntaServiceInterface {
 
     private final PreguntasRepository preguntasRepository;
-    private final CategoriaService categoriaService;
+    private final CategoriaServiceInterface categoriaService;
 
-    public PreguntasService(PreguntasRepository preguntasRepository, CategoriaService categoriaService) {
+    public PreguntasService(PreguntasRepository preguntasRepository, CategoriaServiceInterface categoriaService) {
         this.preguntasRepository = preguntasRepository;
         this.categoriaService = categoriaService;
     }

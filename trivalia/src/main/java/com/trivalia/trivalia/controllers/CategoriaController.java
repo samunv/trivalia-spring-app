@@ -1,24 +1,19 @@
 package com.trivalia.trivalia.controllers;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import com.trivalia.trivalia.model.UsuarioDTO;
-import org.springframework.security.access.prepost.PreAuthorize;
+import com.trivalia.trivalia.services.interfaces.CategoriaServiceInterface;
 import org.springframework.web.bind.annotation.*;
 
 import com.trivalia.trivalia.model.CategoriaDTO;
-import com.trivalia.trivalia.services.CategoriaService;
 
 @RestController
 @RequestMapping("api/categorias")
-
 public class CategoriaController {
 
-    private final CategoriaService cs;
+    private final CategoriaServiceInterface cs;
 
-    public CategoriaController(CategoriaService cs) {
+    public CategoriaController(CategoriaServiceInterface cs) {
         this.cs = cs;
 
     }
@@ -32,7 +27,6 @@ public class CategoriaController {
     public CategoriaDTO obtenerCategoriaInfo(@PathVariable Long id_categoria) {
         return this.cs.obtenerCategoriaDTOPorId(id_categoria);
     }
-
 
 
 }

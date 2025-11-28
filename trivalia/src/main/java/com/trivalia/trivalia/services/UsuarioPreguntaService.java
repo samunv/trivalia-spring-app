@@ -6,25 +6,24 @@ import com.trivalia.trivalia.enums.Item;
 import com.trivalia.trivalia.enums.Operaciones;
 import com.trivalia.trivalia.model.*;
 import com.trivalia.trivalia.model.builders.ResultadoPreguntaBuilder;
-import com.trivalia.trivalia.services.interfaces.PreguntaServiceInterface;
-import com.trivalia.trivalia.services.interfaces.UsuarioLecturaServiceInterface;
-import com.trivalia.trivalia.services.interfaces.UsuarioServiceInterface;
+import com.trivalia.trivalia.services.interfaces.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class UsuarioPreguntaService {
+public class UsuarioPreguntaService implements UsuarioPreguntaServiceInterface {
 
-    private final UsuarioServiceInterface usuarioService;
+    private final UsuarioActualizarDatosServiceInterface usuarioActualizarDatosService;
     private final UsuarioLecturaServiceInterface usuarioLecturaService;
     private final PreguntaServiceInterface preguntasService;
+    private final UsuarioGuardarServiceInterface usuarioGuardarService;
 
-    public UsuarioPreguntaService(UsuarioServiceInterface usuarioService, PreguntaServiceInterface preguntasService,  UsuarioLecturaServiceInterface usuarioLecturaService) {
-        this.usuarioService = usuarioService;
+    public UsuarioPreguntaService(UsuarioActualizarDatosServiceInterface usuarioActualizarDatosService, PreguntaServiceInterface preguntasService,  UsuarioLecturaServiceInterface usuarioLecturaService,  UsuarioGuardarServiceInterface usuarioGuardarService) {
+        this.usuarioActualizarDatosService = usuarioActualizarDatosService;
         this.preguntasService = preguntasService;
         this.usuarioLecturaService = usuarioLecturaService;
-
+        this.usuarioGuardarService = usuarioGuardarService;
     }
 
     public ResultadoPreguntaRespondidaDTO responderPregunta(String uid, RespuestaUsuarioDTO respuestaUsuario) {
@@ -41,7 +40,7 @@ public class UsuarioPreguntaService {
 
     public ResultadoPreguntaRespondidaDTO acertarPregunta(String uid, PreguntasEntity.Dificultad dificultad, Long idPregunta, Long idCategoria) {
         Integer calculoEstrellas = this.calcularEstrellasSegunDificultad(dificultad);
-        if (this.usuarioService.actualizarItem(Item.estrellas, calculoEstrellas, uid, Operaciones.sumar)) {
+        if (this.usuarioActualizarDatosService.actualizarItem(Item.estrellas, calculoEstrellas, uid, Operaciones.sumar)) {
             this.insertarPreguntaGanada(idPregunta, uid);
             UsuarioDTO usuarioDTO = this.usuarioLecturaService.obtenerUsuario(uid);
             return this.obtenerResultadoPreguntaRespondidaDTO(true, "¡Correcto!", Item.estrellas, calculoEstrellas, usuarioDTO, idPregunta, idCategoria);
@@ -52,10 +51,10 @@ public class UsuarioPreguntaService {
 
     public ResultadoPreguntaRespondidaDTO fallarPregunta(String uid, String respuestaCorrecta, Long idPregunta, Long idCategoria) {
         Integer vidasRestar = 1;
-        if (this.usuarioService.actualizarItem(Item.vidas, vidasRestar, uid, Operaciones.restar)) {
+        if (this.usuarioActualizarDatosService.actualizarItem(Item.vidas, vidasRestar, uid, Operaciones.restar)) {
 
             UsuarioDTO usuarioDTO = this.usuarioLecturaService.obtenerUsuario(uid);
-            usuarioDTO.setCantidadPreguntasFalladas(this.usuarioService.actualizarCantidadPreguntasFalladas(uid));
+            usuarioDTO.setCantidadPreguntasFalladas(this.usuarioActualizarDatosService.actualizarCantidadPreguntasFalladas(uid));
 
             return this.obtenerResultadoPreguntaRespondidaDTO(false, "¡Incorrecto!", Item.vidas, vidasRestar, usuarioDTO, idPregunta, idCategoria);
         } else {
@@ -123,7 +122,7 @@ public class UsuarioPreguntaService {
         if (!preguntasGanadas.contains(pregunta)) {
             preguntasGanadas.add(pregunta);
             usuario.setPreguntasGanadas(preguntasGanadas);
-            this.usuarioService.guardarUsuario(usuario);
+            this.usuarioGuardarService.guardarUsuario(usuario);
         }
 
         return pregunta.getIdPregunta();

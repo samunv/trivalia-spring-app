@@ -4,22 +4,23 @@ import java.util.Random;
 
 import com.trivalia.trivalia.entities.UsuarioEntity;
 import com.trivalia.trivalia.enums.Operaciones;
+import com.trivalia.trivalia.services.interfaces.RegaloServiceInterface;
+import com.trivalia.trivalia.services.interfaces.UsuarioActualizarDatosServiceInterface;
 import com.trivalia.trivalia.services.interfaces.UsuarioLecturaServiceInterface;
-import com.trivalia.trivalia.services.interfaces.UsuarioServiceInterface;
 import org.springframework.stereotype.Service;
 
 import com.trivalia.trivalia.enums.Item;
 import com.trivalia.trivalia.model.Regalo;
 
 @Service
-public class RegaloService {
+public class RegaloService implements RegaloServiceInterface {
 
     private static final Random random = new Random();
-    private final UsuarioServiceInterface usuarioService;
+    private final UsuarioActualizarDatosServiceInterface usuarioActualizarDatosService;
     private final UsuarioLecturaServiceInterface usuarioLecturaService;
 
-    public RegaloService(UsuarioServiceInterface usuarioService,  UsuarioLecturaServiceInterface usuarioLecturaService) {
-        this.usuarioService = usuarioService;
+    public RegaloService(UsuarioActualizarDatosServiceInterface usuarioActualizarDatosService,  UsuarioLecturaServiceInterface usuarioLecturaService) {
+        this.usuarioActualizarDatosService = usuarioActualizarDatosService;
         this.usuarioLecturaService = usuarioLecturaService;
     }
 
@@ -62,15 +63,11 @@ public class RegaloService {
 
 
     public void actualizarItemUsuario(Item item, Integer cantidad, String uid, Operaciones operacion) {
-        this.usuarioService.actualizarItem(item, cantidad, uid, operacion);
+        this.usuarioActualizarDatosService.actualizarItem(item, cantidad, uid, operacion);
     }
 
     public void actualizarDisponibilidadRegaloUsuario(String uid){
-        this.usuarioService.actualizarRegaloDisponible(uid, false);
+        this.usuarioActualizarDatosService.actualizarRegaloDisponible(uid, false);
     }
-
-//    public UsuarioDTO obtenerUsuarioDTO(String uid) {
-//        return this.usuarioService.obtenerUsuario(uid);
-//    }
 
 }

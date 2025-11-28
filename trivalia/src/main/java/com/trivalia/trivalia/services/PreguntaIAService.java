@@ -1,5 +1,10 @@
 package com.trivalia.trivalia.services;
 
+import com.trivalia.trivalia.enums.Item;
+import com.trivalia.trivalia.enums.Operaciones;
+import com.trivalia.trivalia.services.interfaces.InteligenciaArtificialServiceInterface;
+import com.trivalia.trivalia.services.interfaces.PreguntasIAServiceInterface;
+import com.trivalia.trivalia.services.interfaces.UsuarioActualizarDatosServiceInterface;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -8,18 +13,28 @@ import com.google.genai.types.GenerateContentConfig;
 import com.trivalia.trivalia.model.PreguntaDTO;
 
 @Service
-public class PreguntaIAService {
+public class PreguntaIAService implements PreguntasIAServiceInterface {
 
-    private final InteligenciaArtificialService inteligenciaArtificialService;
+    private final InteligenciaArtificialServiceInterface inteligenciaArtificialService;
+    private final UsuarioActualizarDatosServiceInterface usuarioActualizarDatosService;
 
 
-    public PreguntaIAService(InteligenciaArtificialService inteligenciaArtificialService) {
+    public PreguntaIAService(InteligenciaArtificialServiceInterface inteligenciaArtificialService, UsuarioActualizarDatosServiceInterface usuarioActualizarDatosService) {
         this.inteligenciaArtificialService = inteligenciaArtificialService;
+        this.usuarioActualizarDatosService = usuarioActualizarDatosService;
     }
 
     public PreguntaDTO generarPreguntaIA() {
         PreguntaDTO preguntaDTO = this.inteligenciaArtificialService.obtenerRespuestaIA(this.obtenerPromptPregunta(), PreguntaDTO.class);
         return preguntaDTO;
+    }
+
+    @Override
+    public boolean ganarPreguntaIA(String uid) {
+        this.usuarioActualizarDatosService.actualizarItem(Item.monedas, 400, uid, Operaciones.sumar);
+        this.usuarioActualizarDatosService.actualizarItem(Item.estrellas, 30, uid, Operaciones.sumar);
+        this.usuarioActualizarDatosService.actualizarRegaloDisponible(uid, true);
+        return true;
     }
 
     private String obtenerPromptPregunta() {

@@ -2,8 +2,9 @@ package com.trivalia.trivalia.controllers;
 
 import java.util.List;
 
+import com.trivalia.trivalia.services.interfaces.UsuarioActualizarDatosServiceInterface;
+import com.trivalia.trivalia.services.interfaces.UsuarioGuardarServiceInterface;
 import com.trivalia.trivalia.services.interfaces.UsuarioLecturaServiceInterface;
-import com.trivalia.trivalia.services.interfaces.UsuarioServiceInterface;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,17 +21,19 @@ import com.trivalia.trivalia.model.UsuarioDTO;
 @RequestMapping("/api/usuarios")
 public class UsuarioController {
 
-    private final UsuarioServiceInterface usuarioService;
+    private final UsuarioActualizarDatosServiceInterface usuarioActualizarDatosService;
     private final UsuarioLecturaServiceInterface usuarioLecturaService;
+    private final UsuarioGuardarServiceInterface usuarioGuardarService;
 
-    public UsuarioController(UsuarioServiceInterface usuarioService,  UsuarioLecturaServiceInterface usuarioLecturaService) {
-        this.usuarioService = usuarioService;
+    public UsuarioController(UsuarioActualizarDatosServiceInterface usuarioActualizarDatosService,  UsuarioLecturaServiceInterface usuarioLecturaService,  UsuarioGuardarServiceInterface usuarioGuardarService) {
+        this.usuarioActualizarDatosService = usuarioActualizarDatosService;
         this.usuarioLecturaService = usuarioLecturaService;
+        this.usuarioGuardarService = usuarioGuardarService;
     }
 
     @PostMapping("/crear")
     public UsuarioDTO crearUsuario(@RequestBody UsuarioDTO dto) {
-        return this.usuarioService.obtenerOCrearUsuario(dto);
+        return this.usuarioGuardarService.obtenerOCrearUsuario(dto);
     }
 
     @PreAuthorize("#uid == authentication.name")
@@ -49,6 +52,6 @@ public class UsuarioController {
     @PatchMapping("/actualizar-nombre-foto/{uid}")
     public UsuarioDTO actualizarUsuario(@PathVariable String uid, @RequestBody UsuarioDTO dto) {
 
-        return this.usuarioService.actualizarNombreFoto(uid, dto);
+        return this.usuarioActualizarDatosService.actualizarNombreFoto(uid, dto);
     }
 }
