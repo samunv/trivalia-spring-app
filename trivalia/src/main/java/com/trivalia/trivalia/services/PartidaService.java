@@ -16,12 +16,19 @@ public class PartidaService implements PartidaServiceInterface {
     private final UsuarioLecturaServiceInterface usuarioLecturaService;
     private final PreguntaServiceInterface preguntasService;
     private final UsuarioPreguntaServiceInterface usuarioPreguntaService;
+    private final ContadorServiceInterface contadorService;
 
-    public PartidaService(UsuarioActualizarDatosServiceInterface usuarioActualizarDatosService, UsuarioLecturaServiceInterface usuarioLecturaService ,PreguntaServiceInterface preguntasService, UsuarioPreguntaServiceInterface usuarioPreguntaService) {
+    public PartidaService(UsuarioActualizarDatosServiceInterface usuarioActualizarDatosService,
+                          UsuarioLecturaServiceInterface usuarioLecturaService,
+                          PreguntaServiceInterface preguntasService,
+                          UsuarioPreguntaServiceInterface usuarioPreguntaService,
+                          ContadorServiceInterface contadorService
+    ) {
         this.usuarioActualizarDatosService = usuarioActualizarDatosService;
         this.usuarioLecturaService = usuarioLecturaService;
         this.preguntasService = preguntasService;
         this.usuarioPreguntaService = usuarioPreguntaService;
+        this.contadorService = contadorService;
     }
 
     public boolean jugarPartida(String uid) {
@@ -55,11 +62,41 @@ public class PartidaService implements PartidaServiceInterface {
 
 
     public PreguntaDTO obtenerPrimeraPregunta(Long idCategoria) {
-        return  this.preguntasService.obtenerPrimeraPregunta(idCategoria);
+        this.controlarContador("iniciar");
+        return this.preguntasService.obtenerPrimeraPregunta(idCategoria);
     }
 
-    public ResultadoPreguntaRespondidaDTO responderPregunta(String uid, RespuestaUsuarioDTO respuestaUsuario){
-        return this.usuarioPreguntaService.responderPregunta(uid, respuestaUsuario);
+    public ResultadoPreguntaRespondidaDTO responderPregunta(String uid, RespuestaUsuarioDTO respuestaUsuario) {
+        if(this.contadorService.verificarContadorMayorQueCero()){
+            this.controlarContador("detener");
+            return this.usuarioPreguntaService.responderPregunta(uid, respuestaUsuario);
+        }else{
+            this.usuarioActualizarDatosService.actualizarItem(Item.vidas
+                    , 1, uid, Operaciones.restar);
+        }
+        return null;
+    }
+
+    @Override
+    public boolean perderPorTiempo(String uid) {
+        if(!this.contadorService.verificarContadorMayorQueCero()){
+            return this.usuarioActualizarDatosService.actualizarItem(Item.vidas, 1, uid, Operaciones.restar);
+        }else{
+            System.err.print("Tiempo mayor que cero");
+            return false;
+        }
+
+    }
+
+    public void controlarContador(String accion){
+        if(accion.equalsIgnoreCase("iniciar")){
+            this.contadorService.iniciarContador();
+        }else if(accion.equalsIgnoreCase("detener")){
+            this.contadorService.detenerContador();
+        }else{
+            throw new UnsupportedOperationException("Operacion no encontrada.");
+        }
+
     }
 
 

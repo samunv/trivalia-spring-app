@@ -74,4 +74,12 @@ public class PartidaController {
         resultado.put("resultado", this.preguntasIAService.ganarPreguntaIA(uid));
         return resultado;
     }
+
+    @PreAuthorize("#uid == authentication.name")
+    @PostMapping("/perder-por-tiempo/{uid}")
+    public Map<String, Boolean> perderPorTiempo(@PathVariable String uid) {
+        Map<String, Boolean> resultado = new HashMap<>();
+        resultado.put("resultado", this.partidaService.perderPorTiempo(uid));
+        return resultado;
+    }
 }

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.trivalia.trivalia.model.UsuarioDTO;
 import com.trivalia.trivalia.services.*;
 import com.trivalia.trivalia.services.interfaces.PreguntaServiceInterface;
 import com.trivalia.trivalia.services.interfaces.PreguntasIAServiceInterface;

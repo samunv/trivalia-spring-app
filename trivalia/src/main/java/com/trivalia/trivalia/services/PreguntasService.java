@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.trivalia.trivalia.model.*;
 import com.trivalia.trivalia.services.interfaces.CategoriaServiceInterface;
+import com.trivalia.trivalia.services.interfaces.ContadorServiceInterface;
 import com.trivalia.trivalia.services.interfaces.PreguntaServiceInterface;
 import org.springframework.stereotype.Service;
 
@@ -18,10 +19,12 @@ public class PreguntasService implements PreguntaServiceInterface {
 
     private final PreguntasRepository preguntasRepository;
     private final CategoriaServiceInterface categoriaService;
+    private final ContadorServiceInterface contadorService;
 
-    public PreguntasService(PreguntasRepository preguntasRepository, CategoriaServiceInterface categoriaService) {
+    public PreguntasService(PreguntasRepository preguntasRepository, CategoriaServiceInterface categoriaService,  ContadorServiceInterface contadorService) {
         this.preguntasRepository = preguntasRepository;
         this.categoriaService = categoriaService;
+        this.contadorService = contadorService;
     }
 
     public PreguntasEntity obtenerPregunta(Long idPregunta) {
@@ -87,10 +90,12 @@ public class PreguntasService implements PreguntaServiceInterface {
         // Verificación de Límite
         if (indiceSiguiente < listaPreguntas.size()) {
             // 2. Obtener el elemento
+            this.contadorService.iniciarContador();
             PreguntasEntity preguntaSiguiente = listaPreguntas.get(indiceSiguiente);
             return PreguntaMapper.INSTANCE.toDTO(preguntaSiguiente);
         } else {
-            System.out.println("El índice actual (" + indiceActual + ") es el último, no hay un elemento siguiente.");
+            this.contadorService.detenerContador();
+            System.out.println("El índice actual " + indiceActual + ", es el último, no hay un elemento siguiente.");
             return null;
         }
     }

@@ -14,4 +14,6 @@ public interface PartidaServiceInterface {
     public PreguntaDTO obtenerPrimeraPregunta(Long idCategoria);
 
     public ResultadoPreguntaRespondidaDTO responderPregunta(String uid, RespuestaUsuarioDTO respuestaUsuario);
+
+    public boolean perderPorTiempo(String uid);
 }
