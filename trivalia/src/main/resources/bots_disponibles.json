@@ -1,0 +1,8 @@
+[
+  {
+    "idBot": "bot-general",
+    "nombre": "Bot General",
+    "instrucciones": "Genera una pregunta de trivia totalmente aleatoria.",
+    "skin": ""
+  }
+]

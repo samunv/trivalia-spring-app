@@ -7,7 +7,7 @@ import com.trivalia.trivalia.model.ResultadoPreguntaRespondidaDTO;
 public interface PartidaServiceInterface {
     public boolean jugarPartida(String uid);
 
-    public boolean continuarConMonedas(String uid, Integer monedasRequeridas);
+    public boolean continuarConMonedas(String uid);
 
     public boolean ganarPartida(String uid, PreguntaDTO preguntaDTO);
 
@@ -16,4 +16,6 @@ public interface PartidaServiceInterface {
     public ResultadoPreguntaRespondidaDTO responderPregunta(String uid, RespuestaUsuarioDTO respuestaUsuario);
 
     public boolean perderPorTiempo(String uid);
+
+    public void reintentarPartida();
 }

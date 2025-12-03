@@ -76,15 +76,5 @@ public class PreguntasController {
         return this.preguntaIAService.generarPreguntaIA();
     }
 
-    /*
-     * Actualmente se utiliza la función responderPregunta() de PartidaController
-     *
-     *  */
-    @Deprecated
-    @PreAuthorize("#uid == authentication.name")
-    @PostMapping("/responder/{uid}")
-    public ResultadoPreguntaRespondidaDTO responderPregunta(@PathVariable String uid, @RequestBody RespuestaUsuarioDTO respuestaUsuario) {
-        return this.usuarioPreguntaService.responderPregunta(uid, respuestaUsuario);
-    }
 
 }

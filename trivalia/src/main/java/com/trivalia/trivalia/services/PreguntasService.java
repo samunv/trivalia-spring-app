@@ -19,12 +19,11 @@ public class PreguntasService implements PreguntaServiceInterface {
 
     private final PreguntasRepository preguntasRepository;
     private final CategoriaServiceInterface categoriaService;
-    private final ContadorServiceInterface contadorService;
 
-    public PreguntasService(PreguntasRepository preguntasRepository, CategoriaServiceInterface categoriaService,  ContadorServiceInterface contadorService) {
+
+    public PreguntasService(PreguntasRepository preguntasRepository, CategoriaServiceInterface categoriaService) {
         this.preguntasRepository = preguntasRepository;
         this.categoriaService = categoriaService;
-        this.contadorService = contadorService;
     }
 
     public PreguntasEntity obtenerPregunta(Long idPregunta) {
@@ -77,7 +76,7 @@ public class PreguntasService implements PreguntaServiceInterface {
     public boolean esUltimaPreguntaDeCategoria(Long idPregunta) {
         Long idCategoria = this.obtenerPregunta(idPregunta).getCategoria().getIdCategoria();
         List<PreguntasEntity> preguntasEntityList = this.obtenerListPreguntas(idCategoria);
-        Long ultimoIdPregunta = preguntasEntityList.get(preguntasEntityList.size()-1).getIdPregunta();
+        Long ultimoIdPregunta = preguntasEntityList.get(preguntasEntityList.size() - 1).getIdPregunta();
         return idPregunta.equals(ultimoIdPregunta);
     }
 
@@ -89,12 +88,10 @@ public class PreguntasService implements PreguntaServiceInterface {
         int indiceSiguiente = indiceActual + 1;
         // Verificación de Límite
         if (indiceSiguiente < listaPreguntas.size()) {
-            // 2. Obtener el elemento
-            this.contadorService.iniciarContador();
+
             PreguntasEntity preguntaSiguiente = listaPreguntas.get(indiceSiguiente);
             return PreguntaMapper.INSTANCE.toDTO(preguntaSiguiente);
         } else {
-            this.contadorService.detenerContador();
             System.out.println("El índice actual " + indiceActual + ", es el último, no hay un elemento siguiente.");
             return null;
         }
@@ -108,7 +105,7 @@ public class PreguntasService implements PreguntaServiceInterface {
 
     public PreguntaDTO obtenerPrimeraPregunta(Long idCategoria) {
         List<PreguntasEntity> listaPreguntas = this.obtenerListPreguntas(idCategoria);
-        return  PreguntaMapper.INSTANCE.toDTO(listaPreguntas.get(0));
+        return PreguntaMapper.INSTANCE.toDTO(listaPreguntas.get(0));
     }
 
 

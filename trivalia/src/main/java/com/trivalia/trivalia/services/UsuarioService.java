@@ -151,8 +151,8 @@ public class UsuarioService implements UsuarioLecturaServiceInterface, UsuarioGu
         Optional<UsuarioEntity> optionalUsuario = this.usuarioRepository.findById(uid);
         if (optionalUsuario.isPresent()) {
             UsuarioEntity usuarioEntity = optionalUsuario.get();
-            usuarioEntity.setNombre(usuarioDTO.getNombre());
-            usuarioEntity.setFotoURL(usuarioDTO.getFotoURL());
+            usuarioEntity.setNombre(validarNombreEnviado(uid, usuarioDTO.getNombre()));
+            usuarioEntity.setFotoURL(validarFotoURLEnviado(uid, usuarioDTO.getFotoURL()));
             UsuarioEntity usuarioActualizado = this.usuarioRepository.save(usuarioEntity);
             UsuarioDTO nuevoDTO = UsuarioMapper.INSTANCE.toDTO(usuarioActualizado);
             System.out.print("Actualizando usuario " + usuarioEntity.getNombre());
@@ -161,6 +161,26 @@ public class UsuarioService implements UsuarioLecturaServiceInterface, UsuarioGu
         } else {
             System.out.print("Error al actualizar usuario");
             return null;
+        }
+
+    }
+
+    private String validarNombreEnviado(String uid, String nombre){
+        UsuarioEntity usuarioEntity = this.obtenerUsuarioEntity(uid);
+
+        if (nombre != null && nombre.length() >= 4 && nombre.length() <= 15){
+            return nombre;
+        }else{
+            return usuarioEntity.getNombre();
+        }
+    }
+
+    private String validarFotoURLEnviado(String uid, String fotoURL){
+        UsuarioEntity usuarioEntity = this.obtenerUsuarioEntity(uid);
+        if(fotoURL != null){
+            return fotoURL;
+        }else{
+            return usuarioEntity.getFotoURL();
         }
 
     }

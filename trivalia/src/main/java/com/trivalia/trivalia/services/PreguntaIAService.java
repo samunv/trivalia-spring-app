@@ -2,6 +2,7 @@ package com.trivalia.trivalia.services;
 
 import com.trivalia.trivalia.enums.Item;
 import com.trivalia.trivalia.enums.Operaciones;
+import com.trivalia.trivalia.services.interfaces.CalculadorServiceInterface;
 import com.trivalia.trivalia.services.interfaces.InteligenciaArtificialServiceInterface;
 import com.trivalia.trivalia.services.interfaces.PreguntasIAServiceInterface;
 import com.trivalia.trivalia.services.interfaces.UsuarioActualizarDatosServiceInterface;
@@ -17,28 +18,30 @@ public class PreguntaIAService implements PreguntasIAServiceInterface {
 
     private final InteligenciaArtificialServiceInterface inteligenciaArtificialService;
     private final UsuarioActualizarDatosServiceInterface usuarioActualizarDatosService;
+    private final CalculadorServiceInterface calculadorService;
 
 
-    public PreguntaIAService(InteligenciaArtificialServiceInterface inteligenciaArtificialService, UsuarioActualizarDatosServiceInterface usuarioActualizarDatosService) {
+    public PreguntaIAService(InteligenciaArtificialServiceInterface inteligenciaArtificialService, UsuarioActualizarDatosServiceInterface usuarioActualizarDatosService,  CalculadorServiceInterface calculadorService) {
         this.inteligenciaArtificialService = inteligenciaArtificialService;
         this.usuarioActualizarDatosService = usuarioActualizarDatosService;
+        this.calculadorService = calculadorService;
     }
 
     public PreguntaDTO generarPreguntaIA() {
-        PreguntaDTO preguntaDTO = this.inteligenciaArtificialService.obtenerRespuestaIA(this.obtenerPromptPregunta(), PreguntaDTO.class);
-        return preguntaDTO;
+        return this.inteligenciaArtificialService.obtenerRespuestaIA(this.obtenerPromptPregunta(), PreguntaDTO.class);
     }
 
     @Override
     public boolean ganarPreguntaIA(String uid) {
-        this.usuarioActualizarDatosService.actualizarItem(Item.monedas, 400, uid, Operaciones.sumar);
+        int monedasRecompensa = this.calculadorService.calcularRecompensaIASegunMonedasUsuario(uid);
+        this.usuarioActualizarDatosService.actualizarItem(Item.monedas, monedasRecompensa, uid, Operaciones.sumar);
         this.usuarioActualizarDatosService.actualizarItem(Item.estrellas, 30, uid, Operaciones.sumar);
         this.usuarioActualizarDatosService.actualizarRegaloDisponible(uid, true);
         return true;
     }
 
     private String obtenerPromptPregunta() {
-        return "Genera una pregunta de trivia totalmente aleatoria de dificultad 'MEDIO' (que se traduce en dificultad media), de cultura general, pero no puede ser tampoco muy sencilla ni fácil de acertar. \n"
+        return "Genera una pregunta de trivia totalmente aleatoria. La pregunta debe ser de dificultad 'MEDIO' (que se traduce en dificultad media), de cultura general, pero no puede ser tampoco muy sencilla ni fácil de acertar. \n"
                 + "Puede ser de cualquier tema (Por ejemplo equipos de fútbol, música general, ciencia, naturaleza, etc.). Es necesario que el enunciado o pregunta no sea muy larga. Está prohibido que en las opciones se incluyan pistas. Debe estar en formato JSON con las siguientes claves: "
                 + "{ \"pregunta\": \"\", \"opcion_a\": \"\", \"opcion_b\": \"\", \"opcion_c\": \"\", "
                 + "\"respuesta_correcta\": \"\", \"tipo_pregunta\": \"OPCIONES\", \"dificultad\": \"MEDIO\", \"imagenURL\": \"\" } "

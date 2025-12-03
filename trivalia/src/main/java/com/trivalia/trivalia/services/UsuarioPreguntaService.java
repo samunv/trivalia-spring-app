@@ -18,12 +18,14 @@ public class UsuarioPreguntaService implements UsuarioPreguntaServiceInterface {
     private final UsuarioLecturaServiceInterface usuarioLecturaService;
     private final PreguntaServiceInterface preguntasService;
     private final UsuarioGuardarServiceInterface usuarioGuardarService;
+    private final ContadorServiceInterface contadorServiceInterface;
 
-    public UsuarioPreguntaService(UsuarioActualizarDatosServiceInterface usuarioActualizarDatosService, PreguntaServiceInterface preguntasService,  UsuarioLecturaServiceInterface usuarioLecturaService,  UsuarioGuardarServiceInterface usuarioGuardarService) {
+    public UsuarioPreguntaService(UsuarioActualizarDatosServiceInterface usuarioActualizarDatosService, PreguntaServiceInterface preguntasService,  UsuarioLecturaServiceInterface usuarioLecturaService,  UsuarioGuardarServiceInterface usuarioGuardarService,  ContadorServiceInterface contadorServiceInterface) {
         this.usuarioActualizarDatosService = usuarioActualizarDatosService;
         this.preguntasService = preguntasService;
         this.usuarioLecturaService = usuarioLecturaService;
         this.usuarioGuardarService = usuarioGuardarService;
+        this.contadorServiceInterface = contadorServiceInterface;
     }
 
     public ResultadoPreguntaRespondidaDTO responderPregunta(String uid, RespuestaUsuarioDTO respuestaUsuario) {
@@ -31,8 +33,10 @@ public class UsuarioPreguntaService implements UsuarioPreguntaServiceInterface {
         boolean respuestaEsCorrecta = respuestaUsuario.getRespuestaSeleccionada().equalsIgnoreCase(preguntaEntity.getRespuesta_correcta());
 
         if (respuestaEsCorrecta) {
+            this.contadorServiceInterface.iniciarContador();
             return this.acertarPregunta(uid, preguntaEntity.getDificultad(), respuestaUsuario.getIdPregunta(), respuestaUsuario.getIdCategoria());
         } else {
+            this.contadorServiceInterface.detenerContador();
             return this.fallarPregunta(uid, preguntaEntity.getRespuesta_correcta(), respuestaUsuario.getIdPregunta(), respuestaUsuario.getIdCategoria());
         }
 

@@ -17,18 +17,21 @@ public class PartidaService implements PartidaServiceInterface {
     private final PreguntaServiceInterface preguntasService;
     private final UsuarioPreguntaServiceInterface usuarioPreguntaService;
     private final ContadorServiceInterface contadorService;
+    private final CalculadorServiceInterface calculadorService;
 
     public PartidaService(UsuarioActualizarDatosServiceInterface usuarioActualizarDatosService,
                           UsuarioLecturaServiceInterface usuarioLecturaService,
                           PreguntaServiceInterface preguntasService,
                           UsuarioPreguntaServiceInterface usuarioPreguntaService,
-                          ContadorServiceInterface contadorService
+                          ContadorServiceInterface contadorService,
+                          CalculadorServiceInterface calculadorService
     ) {
         this.usuarioActualizarDatosService = usuarioActualizarDatosService;
         this.usuarioLecturaService = usuarioLecturaService;
         this.preguntasService = preguntasService;
         this.usuarioPreguntaService = usuarioPreguntaService;
         this.contadorService = contadorService;
+        this.calculadorService = calculadorService;
     }
 
     public boolean jugarPartida(String uid) {
@@ -44,9 +47,11 @@ public class PartidaService implements PartidaServiceInterface {
         return false;
     }
 
-    public boolean continuarConMonedas(String uid, Integer monedasRequeridas) {
+    public boolean continuarConMonedas(String uid) {
+        int monedasRequeridas = this.calculadorService.calcularCostoIASegunMonedasUsuario(uid);
         return this.usuarioActualizarDatosService.descontarMonedas(uid, monedasRequeridas);
     }
+
 
     public boolean ganarPartida(String uid, PreguntaDTO preguntaDTO) {
         if (this.preguntasService.esUltimaPreguntaDeCategoria(preguntaDTO.getIdPregunta())) {
@@ -54,6 +59,7 @@ public class PartidaService implements PartidaServiceInterface {
             this.usuarioActualizarDatosService.anadirPartidaGanada(usuarioEntity);
             this.usuarioActualizarDatosService.actualizarRegaloDisponible(uid, true);
             this.usuarioActualizarDatosService.actualizarItem(Item.monedas, 100, uid, Operaciones.sumar);
+            this.controlarContador("detener");
             return true;
         }
         return false;
@@ -67,10 +73,10 @@ public class PartidaService implements PartidaServiceInterface {
     }
 
     public ResultadoPreguntaRespondidaDTO responderPregunta(String uid, RespuestaUsuarioDTO respuestaUsuario) {
-        if(this.contadorService.verificarContadorMayorQueCero()){
+        if (this.contadorService.verificarContadorMayorQueCero()) {
             this.controlarContador("detener");
             return this.usuarioPreguntaService.responderPregunta(uid, respuestaUsuario);
-        }else{
+        } else {
             this.usuarioActualizarDatosService.actualizarItem(Item.vidas
                     , 1, uid, Operaciones.restar);
         }
@@ -79,26 +85,29 @@ public class PartidaService implements PartidaServiceInterface {
 
     @Override
     public boolean perderPorTiempo(String uid) {
-        if(!this.contadorService.verificarContadorMayorQueCero()){
+        if (!this.contadorService.verificarContadorMayorQueCero()) {
             return this.usuarioActualizarDatosService.actualizarItem(Item.vidas, 1, uid, Operaciones.restar);
-        }else{
+        } else {
             System.err.print("Tiempo mayor que cero");
             return false;
         }
 
     }
 
-    public void controlarContador(String accion){
-        if(accion.equalsIgnoreCase("iniciar")){
+    public void controlarContador(String accion) {
+        if (accion.equalsIgnoreCase("iniciar")) {
             this.contadorService.iniciarContador();
-        }else if(accion.equalsIgnoreCase("detener")){
+        } else if (accion.equalsIgnoreCase("detener")) {
             this.contadorService.detenerContador();
-        }else{
+        } else {
             throw new UnsupportedOperationException("Operacion no encontrada.");
         }
 
     }
 
+    public void reintentarPartida() {
+        this.controlarContador("iniciar");
+    }
 
 
 }

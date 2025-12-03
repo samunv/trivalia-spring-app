@@ -44,20 +44,20 @@ public class PartidaController {
         return resultado;
     }
 
-    @PreAuthorize("#uid == authentication.name")
-    @GetMapping("/continuar-con-monedas/{uid}")
-    public Map<String, Boolean> continuarConMonedas(@PathVariable String uid) {
-        Map<String, Boolean> resultado = new HashMap<>();
-        resultado.put("resultado", this.partidaService.continuarConMonedas(uid, 100));
-        return resultado;
-    }
+//    @PreAuthorize("#uid == authentication.name")
+//    @GetMapping("/continuar-con-monedas/{uid}")
+//    public Map<String, Boolean> continuarConMonedas(@PathVariable String uid) {
+//        Map<String, Boolean> resultado = new HashMap<>();
+//        resultado.put("resultado", this.partidaService.continuarConMonedas(uid));
+//        return resultado;
+//    }
 
 
     @PreAuthorize("#uid == authentication.name")
     @GetMapping("/jugar-ia/{uid}")
     public Map<String, Boolean> jugarIa(@PathVariable String uid) {
         Map<String, Boolean> resultado = new HashMap<>();
-        resultado.put("resultado", this.partidaService.continuarConMonedas(uid, 300));
+        resultado.put("resultado", this.partidaService.continuarConMonedas(uid));
         return resultado;
     }
 
@@ -80,6 +80,15 @@ public class PartidaController {
     public Map<String, Boolean> perderPorTiempo(@PathVariable String uid) {
         Map<String, Boolean> resultado = new HashMap<>();
         resultado.put("resultado", this.partidaService.perderPorTiempo(uid));
+        return resultado;
+    }
+
+    @PreAuthorize("#uid == authentication.name")
+    @PostMapping("/reintentar-partida/{uid}")
+    public Map<String, Boolean> reintentarPartida(@PathVariable String uid) {
+        Map<String, Boolean> resultado = new HashMap<>();
+        this.partidaService.reintentarPartida();
+        resultado.put("resultado", true);
         return resultado;
     }
 }
