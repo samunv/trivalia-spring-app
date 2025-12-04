@@ -67,13 +67,13 @@ public class PartidaController {
         return this.partidaService.responderPregunta(uid, respuestaUsuario);
     }
 
-    @PreAuthorize("#uid == authentication.name")
-    @PostMapping("/ganar-ia/{uid}")
-    public Map<String, Boolean> ganarIa(@PathVariable String uid) {
-        Map<String, Boolean> resultado = new HashMap<>();
-        resultado.put("resultado", this.preguntasIAService.ganarPreguntaIA(uid));
-        return resultado;
-    }
+//    @PreAuthorize("#uid == authentication.name")
+//    @PostMapping("/ganar-ia/{uid}")
+//    public Map<String, Boolean> ganarIa(@PathVariable String uid) {
+//        Map<String, Boolean> resultado = new HashMap<>();
+//        resultado.put("resultado", this.preguntasIAService.ganarPreguntaIA(uid));
+//        return resultado;
+//    }
 
     @PreAuthorize("#uid == authentication.name")
     @PostMapping("/perder-por-tiempo/{uid}")
@@ -89,6 +89,14 @@ public class PartidaController {
         Map<String, Boolean> resultado = new HashMap<>();
         this.partidaService.reintentarPartida();
         resultado.put("resultado", true);
+        return resultado;
+    }
+
+    @PreAuthorize("#uid == authentication.name")
+    @PostMapping("/responder-ia/{uid}")
+    public Map<String, Boolean> reintentarPartida(@PathVariable String uid, @RequestBody RespuestaUsuarioDTO respuestaUsuario) {
+        Map<String, Boolean> resultado = new HashMap<>();
+        resultado.put("resultado", this.preguntasIAService.responderPreguntaIA(uid, respuestaUsuario));
         return resultado;
     }
 }

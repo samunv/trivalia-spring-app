@@ -20,7 +20,7 @@ public class CalculadorService implements CalculadorServiceInterface {
         if (usuarioEntity.getMonedas() < 1000) {
             return 300;
         }
-        if(usuarioEntity.getMonedas() >=1000 && usuarioEntity.getMonedas() <=4000){
+        if(usuarioEntity.getMonedas() >=1000 && usuarioEntity.getMonedas() <=5000){
             return 650;
         }
         if(usuarioEntity.getMonedas() >=5000){
@@ -35,7 +35,7 @@ public class CalculadorService implements CalculadorServiceInterface {
         if (usuarioEntity.getMonedas() < 1000) {
             return 400;
         }
-        if(usuarioEntity.getMonedas() >=1000 && usuarioEntity.getMonedas() <=4000){
+        if(usuarioEntity.getMonedas() >=1000 && usuarioEntity.getMonedas() <=5000){
             return 750;
         }
         if(usuarioEntity.getMonedas() >=5000){

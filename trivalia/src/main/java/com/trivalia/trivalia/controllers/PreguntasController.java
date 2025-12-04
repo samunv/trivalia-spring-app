@@ -73,7 +73,7 @@ public class PreguntasController {
 
     @GetMapping("/obtener-pregunta-ia")
     public PreguntaDTO obtenerPreguntaIA() {
-        return this.preguntaIAService.generarPreguntaIA();
+        return this.preguntaIAService.generarYObtenerPreguntaIA();
     }
 
 
