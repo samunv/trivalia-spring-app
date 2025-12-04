@@ -2,4 +2,4 @@ docker-compose.yml
 init-sql/
 .env
 .idea/
-trivalia/src/main/resources/
+trivalia/src/main/resources/application.properties
