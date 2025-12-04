@@ -12,7 +12,7 @@ import java.time.Duration;
 public class PreguntaMemoriaService implements PreguntaMemoriaServiceInterface {
 
     private final RedisTemplate<String, Object> redisTemplate;
-    private static final Duration duracionEnCache = Duration.ofMinutes(5); // TODO: Debe ser de 20 segundos
+    private static final Duration duracionEnCache = Duration.ofSeconds(30);
 
     public PreguntaMemoriaService(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;

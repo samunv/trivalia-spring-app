@@ -2,3 +2,4 @@ docker-compose.yml
 init-sql/
 .env
 .idea/
+trivalia/src/main/resources/
