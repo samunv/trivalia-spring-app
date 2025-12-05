@@ -25,7 +25,7 @@ public class Jwt {
         return Jwts.builder()
                 .setSubject(uid)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 259_200_000)) // 3 días
+                .setExpiration(new Date(System.currentTimeMillis() + 1_800_000)) // 30 min
                 .signWith(key)
                 .compact();
     }
@@ -40,7 +40,7 @@ public class Jwt {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (JwtException e) {
-            return false;
+            throw e;
         }
     }
 }

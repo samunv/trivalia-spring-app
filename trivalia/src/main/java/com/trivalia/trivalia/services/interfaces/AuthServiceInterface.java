@@ -8,5 +8,7 @@ import java.util.Map;
 
 public interface AuthServiceInterface {
     public Map<String, String> validarJWT(JwtClienteDTO jwt);
-    public Map<String, String> firebaseLogin(@RequestBody FirebaseTokenDTO fb);
+    public Map<String, Object>  firebaseLogin(@RequestBody FirebaseTokenDTO fb);
+    public void logout(String uid);
+    public String refresh(String refreshTokenValor);
 }
