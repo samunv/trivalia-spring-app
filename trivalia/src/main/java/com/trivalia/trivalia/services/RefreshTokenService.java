@@ -17,14 +17,10 @@ public class RefreshTokenService implements RefreshTokenServiceInterface {
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Value("${app.jwt.ExpiracionMSrefreshToken}")
-    private Long refreshTokenDuracionMS;
+    private Long REFRESH_TOKEN_EXPIRACION_MS;
 
     public RefreshTokenService(RefreshTokenRepository refreshTokenRepository) {
         this.refreshTokenRepository = refreshTokenRepository;
-    }
-
-    public Long obtenerRefreshTokenDuracionMS() {
-        return this.refreshTokenDuracionMS;
     }
 
 
@@ -44,6 +40,7 @@ public class RefreshTokenService implements RefreshTokenServiceInterface {
 
     @Override
     public void eliminarRefreshToken(String uid) {
+        // TODO: es necesario cambiar uid por valor del refreshtoken para mayor seguridad
         refreshTokenRepository.deleteByUidUsuario(uid);
     }
 
@@ -55,7 +52,7 @@ public class RefreshTokenService implements RefreshTokenServiceInterface {
         RefreshTokenEntity refreshToken = new RefreshTokenEntity();
         refreshToken.setRefreshToken(tokenValor);
         refreshToken.setUidUsuario(uid);
-        refreshToken.setExpiracion(this.refreshTokenDuracionMS / 1000);
+        refreshToken.setExpiracion(this.REFRESH_TOKEN_EXPIRACION_MS / 1000);
         // Guardar en Redis
         RefreshTokenEntity tokenGuardado = this.refreshTokenRepository.save(refreshToken);
         return new RefreshTokenDTO(tokenGuardado.getRefreshToken(), tokenGuardado.getUidUsuario(), tokenGuardado.getExpiracion());

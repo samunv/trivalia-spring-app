@@ -33,43 +33,46 @@ public class JwtFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws IOException, ServletException {
 
+        System.out.println(">>> REQ RECEIVED: " + request.getRequestURI());
         final String authHeader = request.getHeader("Authorization");
         String token = null;
         String uid = null;
 
         // Extraer el Token
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            // Si no hay encabezado o no es Bearer, se salta la autenticación y continúa la cadena
             filterChain.doFilter(request, response);
             return;
         }
 
-        token = authHeader.substring(7);
+        token = authHeader.substring(7); // Extraer la parte del JWT después de Bearer
 
+        if (token != null) {
+            try {
+                // Validar Token: Si falla, lanza ExpiredJwtException.
+                if (jwt.validarToken(token)) {
 
-        // Validar Token
-        if (jwt.validarToken(token)) {
+                    uid = jwt.obtenerUid(token);
 
-            uid = jwt.obtenerUid(token);
+                    if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                        // 2. Si es válido, cargar detalles y establecer el contexto
+                        UserDetails userDetails = userDetailsService.loadUserByUsername(uid);
+                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                                userDetails, null, userDetails.getAuthorities());
 
-            // Verificar que el contexto esté vacío (para evitar sobrescribir)
-            if (SecurityContextHolder.getContext().getAuthentication() == null) {
-
-                // Cargar detalles del usuario
-                UserDetails userDetails = userDetailsService.loadUserByUsername(uid);
-
-                // Crear el Token de Autenticación
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                // Establecer la autenticación en el Contexto
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
+                }
+                // Controlar la excepción del JWT
+            } catch (Exception e) {
+                // Esto asegura que la excepción se capture, el contexto quede vacío,
+                // y no se interrumpa la cadena principal con un error 500.
+                System.out.println("JWT expirado o inválido: " + e.getMessage());
             }
-
-
         }
 
+        // se activa el AuthenticationEntryPoint, devolviendo 401.
         filterChain.doFilter(request, response);
     }
 }

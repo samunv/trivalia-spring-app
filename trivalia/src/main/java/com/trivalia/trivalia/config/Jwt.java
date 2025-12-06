@@ -11,6 +11,7 @@ import java.util.Date;
 @Component
 public class Jwt {
     private final Key key;
+    private static final Long EXPIRACION_JWT_MS = 1_800_000l; // 30 min en ms
 
     // Inyecta la firma JWT al crear el bean.
     public Jwt(@Value("${jwt.firma}") String jwtFirma) {
@@ -25,7 +26,7 @@ public class Jwt {
         return Jwts.builder()
                 .setSubject(uid)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1_800_000)) // 30 min
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRACION_JWT_MS))
                 .signWith(key)
                 .compact();
     }

@@ -28,9 +28,7 @@ public class UsuarioDetallesAuthServicio implements UserDetailsService {
         if (usuarioEntity == null) {
             throw new UsernameNotFoundException("Usuario no encontrado con UID: '" + uid + "'");
         }
-
         User user = new User(uid, "", Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
-
         return user;
     }
 }

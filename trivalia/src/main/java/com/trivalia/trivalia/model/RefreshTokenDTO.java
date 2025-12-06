@@ -43,4 +43,10 @@ public class RefreshTokenDTO {
     public void setUidUsuario(String uidUsuario) {
         this.uidUsuario = uidUsuario;
     }
+
+
+    @Override
+    public String toString() {
+        return "{ refreshTokenValor: "+this.getRefreshToken()+", uid: "+this.getUidUsuario()+", expiracion: "+this.getExpiracion()+"}";
+    }
 }

@@ -44,9 +44,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:4200", "https://trivalia-app.web.app"));
+        config.setAllowedOrigins(List.of("http://localhost:4200", "https://trivalia-app.web.app", "https://localhost:4200"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        config.setAllowedHeaders(List.of("*", "Authorization"));
+        config.setAllowedHeaders(List.of("Content-Type", "Authorization", "X-Requested-With", "Accept"));
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

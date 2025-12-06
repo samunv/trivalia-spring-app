@@ -26,7 +26,7 @@ public class AuthService implements AuthServiceInterface {
     private final UsuarioLecturaServiceInterface usuarioLecturaService;
     private final RefreshTokenServiceInterface refreshTokenService;
 
-    public AuthService(Jwt jwt,  UsuarioLecturaServiceInterface usuarioLecturaService,  RefreshTokenServiceInterface refreshTokenService) {
+    public AuthService(Jwt jwt, UsuarioLecturaServiceInterface usuarioLecturaService, RefreshTokenServiceInterface refreshTokenService) {
         this.jwt = jwt;
         this.usuarioLecturaService = usuarioLecturaService;
         this.refreshTokenService = refreshTokenService;
@@ -78,18 +78,22 @@ public class AuthService implements AuthServiceInterface {
 
     @Override
     public String refresh(String refreshTokenValor) {
+        System.out.print("Validando refresh token; valor del refreshToken: " + refreshTokenValor);
         RefreshTokenDTO refreshTokenDTO = this.refreshTokenService.obtenerRefreshToken(refreshTokenValor).orElse(null);
         if (refreshTokenDTO == null) {
             throw new RuntimeException("Refresh token inexistente");
         }
-
-        throw new RuntimeException("Error al refrescar token");
+        String accessJWToken = this.jwt.generarToken(refreshTokenDTO.getUidUsuario());
+        System.out.println("Generando nuevo JWT >>> " + refreshTokenDTO.getRefreshToken());
+        return accessJWToken;
     }
+
 
     private RefreshTokenDTO crearYObtenerRefreshToken(String uid) {
         RefreshTokenDTO dto = this.refreshTokenService.crearRefreshToken(uid);
-        this.refreshTokenService.guardarRefreshToken(new RefreshTokenEntity(dto.getRefreshToken(), dto.getUidUsuario(), dto.getExpiracion()));
-        return dto;
+        System.out.println("Creando refresh token: " + dto.toString());
+        RefreshTokenDTO refreshTokenDTO =this.refreshTokenService.obtenerRefreshToken(dto.getRefreshToken()).orElse(null);
+        System.out.println("Obteniendo refresh token: " + refreshTokenDTO.toString());
+        return refreshTokenDTO;
     }
-
 }
