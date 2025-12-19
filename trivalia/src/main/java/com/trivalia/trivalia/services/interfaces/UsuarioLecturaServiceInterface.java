@@ -12,4 +12,6 @@ public interface UsuarioLecturaServiceInterface {
     List<UsuarioDTO> obtenerListaUsuarios(Integer limite);
 
     UsuarioDTO obtenerUsuario(String uid);
+
+    boolean esMaximoDeVidasUsuario(String uid);
 }

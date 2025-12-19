@@ -10,6 +10,7 @@ import com.trivalia.trivalia.services.interfaces.AuthServiceInterface;
 import com.trivalia.trivalia.services.interfaces.RefreshTokenServiceInterface;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -35,28 +36,17 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody FirebaseTokenDTO fb, HttpServletResponse response) throws FirebaseAuthException {
+    public ResponseEntity<Map<String, Object>> login(@RequestBody FirebaseTokenDTO fb, HttpServletResponse response) throws FirebaseAuthException {
         Map<String, Object> tokensMap = this.authServiceInterface.firebaseLogin(fb);
         String accessJWToken = (String) tokensMap.get("accessJWToken");
         RefreshTokenDTO refreshTokenDTO = (RefreshTokenDTO) tokensMap.get("refreshToken");
+
         System.out.println("accessJWToken: " + accessJWToken);
         System.out.println("refreshToken: " + refreshTokenDTO.getRefreshToken());
-        ResponseCookie cookies = this.obtenerCookiesDeRespuesta(refreshTokenDTO);
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookies.toString())
-                .body(Map.of("token", accessJWToken));
+        return this.obtenerRespuesta(response, accessJWToken, refreshTokenDTO);
     }
 
-    private ResponseCookie obtenerCookiesDeRespuesta(RefreshTokenDTO refreshTokenDTO) {
-        return ResponseCookie.from("refreshToken", refreshTokenDTO.getRefreshToken())
-                .httpOnly(true)
-                .secure(false) // True en producción
-                .path("/")
-                .maxAge(refreshTokenDTO.getExpiracion())
-                .sameSite("Lax")
-                .build();
-    }
 
     @PostMapping("/logout/{uid}")
     public ResponseEntity<?> logout(@PathVariable String uid) {
@@ -65,20 +55,48 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<Map<String, String>> refresh(
+    public ResponseEntity<Map<String, Object>> refresh(
             @CookieValue(name = "refreshToken", required = false)
             String refreshTokenValor,
             HttpServletResponse response) {
+
         System.out.println("Accediendo a /auth/refresh >>> refreshTokenValor: " + refreshTokenValor);
         System.out.println("Obteniendo Cookie de refreshToken: " + refreshTokenValor);
         if (refreshTokenValor == null || refreshTokenValor.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    Map.of("error", "Refresh Token ausente en la cookie.")
+                    Map.of("resultado", false)
             );
         }
 
-        String accessJWToken = this.authServiceInterface.refresh(refreshTokenValor);
-        return ResponseEntity.ok(Map.of("token", accessJWToken));
+
+        Map<String, Object> tokensCreados = this.authServiceInterface.refrescarTokens(refreshTokenValor);
+        String accessJWToken = (String) tokensCreados.get("accessJWToken");
+        RefreshTokenDTO refreshTokenDTO = (RefreshTokenDTO) tokensCreados.get("refreshToken");
+
+        System.out.println("Nuevo refreshToken: " + refreshTokenDTO.getRefreshToken());
+
+        return this.obtenerRespuesta(response, accessJWToken, refreshTokenDTO);
+    }
+
+    @NotNull
+    private ResponseEntity<Map<String, Object>> obtenerRespuesta(HttpServletResponse response, String accessJWToken, RefreshTokenDTO refreshTokenDTO) {
+        ResponseCookie cookiesRefrehToken = this.obtenerCookiesConTokens("refreshToken", refreshTokenDTO.getRefreshToken(), refreshTokenDTO.getExpiracion());
+        ResponseCookie cookiesAccessJWToken = this.obtenerCookiesConTokens("accessJWToken", accessJWToken, 1_800_000L / 1000);
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookiesRefrehToken.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, cookiesAccessJWToken.toString());
+
+        return ResponseEntity.ok().body(Map.of("resultado", true));
+    }
+
+    private ResponseCookie obtenerCookiesConTokens(String claveToken, String token, Long expiracion) {
+        return ResponseCookie.from(claveToken, token)
+                .httpOnly(true)
+                .secure(false) // True en producción
+                .path("/")
+                .maxAge(expiracion)
+                .sameSite("Lax")
+                .build();
     }
 
 }

@@ -11,7 +11,7 @@ import java.util.Date;
 @Component
 public class Jwt {
     private final Key key;
-    private static final Long EXPIRACION_JWT_MS = 1_800_000l; // 30 min en ms
+    private static final Long EXPIRACION_JWT_MS = 1_800_000L; // 30 min en ms
 
     // Inyecta la firma JWT al crear el bean.
     public Jwt(@Value("${jwt.firma}") String jwtFirma) {

@@ -1,5 +1,6 @@
 package com.trivalia.trivalia.controllers;
 
+import com.trivalia.trivalia.entities.PreguntasEntity;
 import com.trivalia.trivalia.model.PreguntaDTO;
 import com.trivalia.trivalia.model.RespuestaUsuarioDTO;
 import com.trivalia.trivalia.model.ResultadoPreguntaRespondidaDTO;
@@ -44,20 +45,11 @@ public class PartidaController {
         return resultado;
     }
 
-//    @PreAuthorize("#uid == authentication.name")
-//    @GetMapping("/continuar-con-monedas/{uid}")
-//    public Map<String, Boolean> continuarConMonedas(@PathVariable String uid) {
-//        Map<String, Boolean> resultado = new HashMap<>();
-//        resultado.put("resultado", this.partidaService.continuarConMonedas(uid));
-//        return resultado;
-//    }
-
-
     @PreAuthorize("#uid == authentication.name")
     @GetMapping("/jugar-ia/{uid}")
     public Map<String, Boolean> jugarIa(@PathVariable String uid) {
         Map<String, Boolean> resultado = new HashMap<>();
-        resultado.put("resultado", this.partidaService.continuarConMonedas(uid));
+        resultado.put("resultado", this.partidaService.jugarIA(uid));
         return resultado;
     }
 
@@ -66,14 +58,6 @@ public class PartidaController {
     public ResultadoPreguntaRespondidaDTO responderPregunta(@PathVariable String uid, @RequestBody RespuestaUsuarioDTO respuestaUsuario) {
         return this.partidaService.responderPregunta(uid, respuestaUsuario);
     }
-
-//    @PreAuthorize("#uid == authentication.name")
-//    @PostMapping("/ganar-ia/{uid}")
-//    public Map<String, Boolean> ganarIa(@PathVariable String uid) {
-//        Map<String, Boolean> resultado = new HashMap<>();
-//        resultado.put("resultado", this.preguntasIAService.ganarPreguntaIA(uid));
-//        return resultado;
-//    }
 
     @PreAuthorize("#uid == authentication.name")
     @PostMapping("/perder-por-tiempo/{uid}")
@@ -94,8 +78,8 @@ public class PartidaController {
 
     @PreAuthorize("#uid == authentication.name")
     @PostMapping("/responder-ia/{uid}")
-    public Map<String, Boolean> reintentarPartida(@PathVariable String uid, @RequestBody RespuestaUsuarioDTO respuestaUsuario) {
-        Map<String, Boolean> resultado = new HashMap<>();
+    public Map<String, String> reintentarPartida(@PathVariable String uid, @RequestBody RespuestaUsuarioDTO respuestaUsuario) {
+        Map<String, String> resultado = new HashMap<>();
         resultado.put("resultado", this.preguntasIAService.responderPreguntaIA(uid, respuestaUsuario));
         return resultado;
     }

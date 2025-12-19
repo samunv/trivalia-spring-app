@@ -1,5 +1,8 @@
 package com.trivalia.trivalia.services;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 import com.trivalia.trivalia.entities.UsuarioEntity;
@@ -28,7 +31,7 @@ public class RegaloService implements RegaloServiceInterface {
         if (this.verificarRegaloDisponible(uid) == false) {
             throw new IllegalStateException("El usuario no tiene un regalo disponible en este momento.");
         } else {
-            Item itemAleatorio = this.generarItemAleatorio();
+            Item itemAleatorio = this.generarItemAleatorio(uid);
             Integer cantidadAleatoria = this.generarCantidadAleatoriaDeItem(itemAleatorio);
             this.actualizarItemUsuario(itemAleatorio, cantidadAleatoria, uid, Operaciones.sumar);
             this.actualizarDisponibilidadRegaloUsuario(uid);
@@ -37,20 +40,23 @@ public class RegaloService implements RegaloServiceInterface {
 
     }
 
-    private Item generarItemAleatorio() {
-        Item[] items = Item.values();
-        int indice = random.nextInt(items.length);
-        return items[indice];
+    private Item generarItemAleatorio(String uid) {
+        List<Item> itemsList = new ArrayList<Item>();
+        // Excluir vidas si son iguales que el máximo posible (5)
+        if(!this.usuarioLecturaService.esMaximoDeVidasUsuario(uid)) {
+            itemsList.add(Item.vidas);
+        }
+        itemsList.add(Item.monedas);
+        int indice = random.nextInt(itemsList.size());
+        return itemsList.get(indice);
     }
 
     private Integer generarCantidadAleatoriaDeItem(Item item) {
         switch (item) {
             case monedas:
-                return random.nextInt(100, 350);
+                return random.nextInt(100, 200);
             case vidas:
-                return random.nextInt(1, 3);
-            case estrellas:
-                return random.nextInt(15, 30);
+                return random.nextInt(1, 2);
             default:
                 return 0;
         }

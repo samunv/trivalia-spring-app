@@ -77,22 +77,35 @@ public class AuthService implements AuthServiceInterface {
     }
 
     @Override
-    public String refresh(String refreshTokenValor) {
-        System.out.print("Validando refresh token; valor del refreshToken: " + refreshTokenValor);
+    public Map<String, Object> refrescarTokens(String refreshTokenValor) {
         RefreshTokenDTO refreshTokenDTO = this.refreshTokenService.obtenerRefreshToken(refreshTokenValor).orElse(null);
         if (refreshTokenDTO == null) {
             throw new RuntimeException("Refresh token inexistente");
         }
-        String accessJWToken = this.jwt.generarToken(refreshTokenDTO.getUidUsuario());
-        System.out.println("Generando nuevo JWT >>> " + refreshTokenDTO.getRefreshToken());
-        return accessJWToken;
+        String accessJWToken = this.refrescarAccessJWToken(refreshTokenDTO.getUidUsuario());
+        RefreshTokenDTO refreshToken = this.rotarRefrehToken(refreshTokenDTO.getUidUsuario(), refreshTokenDTO);
+        Map<String, Object> tokensMap = new HashMap<>();
+        tokensMap.put("accessJWToken", accessJWToken);
+        tokensMap.put("refreshToken", refreshToken);
+        return tokensMap;
     }
 
+    private String refrescarAccessJWToken(String uid) {
+        return this.jwt.generarToken(uid);
+    }
+
+    private RefreshTokenDTO rotarRefrehToken(String uid, RefreshTokenDTO refreshTokenAntiguo) {
+        // Obtener el refreshToken Actual (Antiguo) para eliminar
+       this.refreshTokenService.eliminarRefreshToken(refreshTokenAntiguo.getRefreshToken());
+
+        RefreshTokenDTO nuevoRefreshToken = this.crearYObtenerRefreshToken(uid);
+        return nuevoRefreshToken;
+    }
 
     private RefreshTokenDTO crearYObtenerRefreshToken(String uid) {
         RefreshTokenDTO dto = this.refreshTokenService.crearRefreshToken(uid);
         System.out.println("Creando refresh token: " + dto.toString());
-        RefreshTokenDTO refreshTokenDTO =this.refreshTokenService.obtenerRefreshToken(dto.getRefreshToken()).orElse(null);
+        RefreshTokenDTO refreshTokenDTO = this.refreshTokenService.obtenerRefreshToken(dto.getRefreshToken()).orElse(null);
         System.out.println("Obteniendo refresh token: " + refreshTokenDTO.toString());
         return refreshTokenDTO;
     }

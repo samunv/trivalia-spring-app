@@ -9,6 +9,6 @@ public interface RefreshTokenServiceInterface {
     public Optional<RefreshTokenDTO> obtenerRefreshToken(String refreshTokenValor);
     public void guardarRefreshToken(RefreshTokenEntity refreshToken);
     public RefreshTokenDTO crearRefreshToken(String uid);
-    public void eliminarRefreshToken(String uid);
+    public void eliminarRefreshToken(String refreshTokenValor);
 
 }

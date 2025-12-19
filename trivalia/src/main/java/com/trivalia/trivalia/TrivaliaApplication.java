@@ -9,7 +9,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EntityScan("com.trivalia.trivalia.entities") // asegurar que Spring escanee las entidades
 @EnableScheduling
 public class TrivaliaApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(TrivaliaApplication.class, args);
     }

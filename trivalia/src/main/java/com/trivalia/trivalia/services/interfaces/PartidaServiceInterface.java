@@ -1,13 +1,16 @@
 package com.trivalia.trivalia.services.interfaces;
 
+import com.trivalia.trivalia.entities.PreguntasEntity;
 import com.trivalia.trivalia.model.PreguntaDTO;
 import com.trivalia.trivalia.model.RespuestaUsuarioDTO;
 import com.trivalia.trivalia.model.ResultadoPreguntaRespondidaDTO;
 
+import java.util.Map;
+
 public interface PartidaServiceInterface {
     public boolean jugarPartida(String uid);
 
-    public boolean continuarConMonedas(String uid);
+    public boolean jugarIA(String uid);
 
     public boolean ganarPartida(String uid, PreguntaDTO preguntaDTO);
 

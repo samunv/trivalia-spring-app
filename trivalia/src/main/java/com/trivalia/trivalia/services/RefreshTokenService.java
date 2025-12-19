@@ -39,9 +39,8 @@ public class RefreshTokenService implements RefreshTokenServiceInterface {
     }
 
     @Override
-    public void eliminarRefreshToken(String uid) {
-        // TODO: es necesario cambiar uid por valor del refreshtoken para mayor seguridad
-        refreshTokenRepository.deleteByUidUsuario(uid);
+    public void eliminarRefreshToken(String refreshTokenValor) {
+        refreshTokenRepository.deleteById(refreshTokenValor);
     }
 
     @Override

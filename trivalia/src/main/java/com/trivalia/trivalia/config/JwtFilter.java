@@ -1,9 +1,9 @@
 package com.trivalia.trivalia.config;
 
-
 import com.trivalia.trivalia.config.Jwt;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-// ... otras importaciones
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
@@ -34,45 +33,56 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws IOException, ServletException {
 
         System.out.println(">>> REQ RECEIVED: " + request.getRequestURI());
-        final String authHeader = request.getHeader("Authorization");
-        String token = null;
+
+        String token = extraerAccessJWTokenDeCookies(request);
         String uid = null;
 
-        // Extraer el Token
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            // Si no hay encabezado o no es Bearer, se salta la autenticación y continúa la cadena
+        // Si no hay cookie con JWT, continuar sin autenticación
+        if (token == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        token = authHeader.substring(7); // Extraer la parte del JWT después de Bearer
+        try {
+            if (jwt.validarToken(token)) {
+                uid = jwt.obtenerUid(token);
 
-        if (token != null) {
-            try {
-                // Validar Token: Si falla, lanza ExpiredJwtException.
-                if (jwt.validarToken(token)) {
+                if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                    // Cargar detalles y establecer el contexto
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(uid);
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails, null, userDetails.getAuthorities()
+                            );
 
-                    uid = jwt.obtenerUid(token);
-
-                    if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                        // 2. Si es válido, cargar detalles y establecer el contexto
-                        UserDetails userDetails = userDetailsService.loadUserByUsername(uid);
-                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                                userDetails, null, userDetails.getAuthorities());
-
-                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
-                    }
+                    authentication.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request)
+                    );
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
-                // Controlar la excepción del JWT
-            } catch (Exception e) {
-                // Esto asegura que la excepción se capture, el contexto quede vacío,
-                // y no se interrumpa la cadena principal con un error 500.
-                System.out.println("JWT expirado o inválido: " + e.getMessage());
+            }
+        } catch (Exception e) {
+            // JWT expirado o inválido: devolver 401
+            System.out.println("JWT expirado o inválido: " + e.getMessage());
+        }
+
+        filterChain.doFilter(request, response);
+    }
+
+    private String extraerAccessJWTokenDeCookies(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies == null) {
+            return null;
+        }
+
+        // Buscar la cookie de accessJWToken
+        for (Cookie cookie : cookies) {
+            if ("accessJWToken".equals(cookie.getName())) {
+                return cookie.getValue();
             }
         }
 
-        // se activa el AuthenticationEntryPoint, devolviendo 401.
-        filterChain.doFilter(request, response);
+        return null;
     }
 }

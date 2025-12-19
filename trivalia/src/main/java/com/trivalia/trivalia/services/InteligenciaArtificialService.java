@@ -21,7 +21,7 @@ public class InteligenciaArtificialService implements InteligenciaArtificialServ
 
     public <T> T obtenerRespuestaIA(String PROMPT, Class<T> claseResultado){
         GenerateContentResponse response
-                =  this.clienteGemini.models.generateContent("gemini-2.5-flash", PROMPT, this.configuracionContenido);
+                =  this.clienteGemini.models.generateContent("gemini-2.5-flash-lite", PROMPT, this.configuracionContenido);
         String json = response.text();
         T resultadoObjeto = ConversorJsonObjeto.convertirJSONenObjeto(json, claseResultado);
         return resultadoObjeto;

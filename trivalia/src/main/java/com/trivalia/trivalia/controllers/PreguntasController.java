@@ -71,9 +71,9 @@ public class PreguntasController {
     }
 
 
-    @GetMapping("/obtener-pregunta-ia")
-    public PreguntaDTO obtenerPreguntaIA() {
-        return this.preguntaIAService.generarYObtenerPreguntaIA();
+    @PostMapping("/obtener-pregunta-ia")
+    public PreguntaDTO obtenerPreguntaIA(@RequestBody Map<String, PreguntasEntity.Dificultad> dificultadMap) {
+        return this.preguntaIAService.generarYObtenerPreguntaIA(dificultadMap);
     }
 
 

@@ -75,6 +75,16 @@ public class UsuarioService implements UsuarioLecturaServiceInterface, UsuarioGu
         }
     }
 
+    @Override
+    public boolean esMaximoDeVidasUsuario(String uid) {
+        UsuarioEntity usuarioEntity = this.obtenerUsuarioEntity(uid);
+        // las vidas del usuario deben ser menores de 5
+        if(usuarioEntity.getVidas() == 5){
+            return true;
+        }
+        return false;
+    }
+
     private UsuarioEntity insertarNuevoUsuario(UsuarioEntity usuarioEntity){
        return this.usuarioRepository.save(usuarioEntity);
     }

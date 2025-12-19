@@ -1,5 +1,6 @@
 package com.trivalia.trivalia.services;
 
+import com.trivalia.trivalia.entities.PreguntasEntity;
 import com.trivalia.trivalia.enums.Item;
 import com.trivalia.trivalia.enums.Operaciones;
 import com.trivalia.trivalia.model.RespuestaUsuarioDTO;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.trivalia.trivalia.model.PreguntaDTO;
 
 //import java.util.UUID;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -18,18 +20,22 @@ public class PreguntaIAService implements PreguntasIAServiceInterface {
     private final UsuarioActualizarDatosServiceInterface usuarioActualizarDatosService;
     private final CalculadorServiceInterface calculadorService;
     private final PreguntaMemoriaServiceInterface preguntaMemoriaService;
+    private final ContadorServiceInterface contadorService;
 
 
-    public PreguntaIAService(InteligenciaArtificialServiceInterface inteligenciaArtificialService, UsuarioActualizarDatosServiceInterface usuarioActualizarDatosService, CalculadorServiceInterface calculadorService, PreguntaMemoriaServiceInterface preguntaMemoriaService) {
+    public PreguntaIAService(InteligenciaArtificialServiceInterface inteligenciaArtificialService, UsuarioActualizarDatosServiceInterface usuarioActualizarDatosService, CalculadorServiceInterface calculadorService, PreguntaMemoriaServiceInterface preguntaMemoriaService, ContadorServiceInterface contadorService) {
         this.inteligenciaArtificialService = inteligenciaArtificialService;
         this.usuarioActualizarDatosService = usuarioActualizarDatosService;
         this.calculadorService = calculadorService;
         this.preguntaMemoriaService = preguntaMemoriaService;
+        this.contadorService = contadorService;
     }
 
-    public PreguntaDTO generarYObtenerPreguntaIA() {
-        PreguntaDTO preguntaDTO = this.inteligenciaArtificialService.obtenerRespuestaIA(this.obtenerPromptPregunta(), PreguntaDTO.class);
+    public PreguntaDTO generarYObtenerPreguntaIA(Map<String, PreguntasEntity.Dificultad> dificultadMap) {
+        PreguntasEntity.Dificultad dificultad = dificultadMap.get("dificultad");
+        PreguntaDTO preguntaDTO = this.inteligenciaArtificialService.obtenerRespuestaIA(this.obtenerPromptPregunta(dificultad), PreguntaDTO.class);
         this.preguntaMemoriaService.guardarPreguntaEnMemoria(preguntaDTO);
+        this.contadorService.iniciarContador();
         return this.preguntaMemoriaService.obtenerPreguntaDeMemoria(preguntaDTO.getIdPregunta());
     }
 
@@ -42,24 +48,28 @@ public class PreguntaIAService implements PreguntasIAServiceInterface {
     }
 
     @Override
-    public boolean responderPreguntaIA(String uid, RespuestaUsuarioDTO respuestaUsuarioDTO) {
-        PreguntaDTO dto = this.preguntaMemoriaService.obtenerPreguntaDeMemoria(respuestaUsuarioDTO.getIdPregunta());
-        Boolean respuestaEsCorrecta = respuestaUsuarioDTO.getRespuestaSeleccionada().equalsIgnoreCase(dto.getRespuesta_correcta());
-
-        if(respuestaEsCorrecta){
-            this.ganarPreguntaIA(uid);
-        }
-
+    public String responderPreguntaIA(String uid, RespuestaUsuarioDTO respuestaUsuarioDTO) {
+        PreguntaDTO preguntaDTO = this.preguntaMemoriaService.obtenerPreguntaDeMemoria(respuestaUsuarioDTO.getIdPregunta());
         this.preguntaMemoriaService.eliminarPreguntaDeMemoria(respuestaUsuarioDTO.getIdPregunta());
-        return respuestaEsCorrecta;
+        if (this.contadorService.verificarContadorMayorQueCero()) {
+            this.contadorService.detenerContador();
+            Boolean respuestaEsCorrecta = respuestaUsuarioDTO.getRespuestaSeleccionada().equalsIgnoreCase(preguntaDTO.getRespuesta_correcta());
+            if (respuestaEsCorrecta) {
+                this.ganarPreguntaIA(uid);
+            }
+            return preguntaDTO.getRespuesta_correcta();
+        }
+        return null;
     }
 
-    private String obtenerPromptPregunta() {
-        return "Genera una pregunta de trivia totalmente aleatoria. La pregunta debe ser de dificultad 'MEDIO' (que se traduce en dificultad media), de cultura general, pero no puede ser tampoco muy sencilla ni fácil de acertar. \n"
+    private String obtenerPromptPregunta(PreguntasEntity.Dificultad dificultad) {
+        return "Genera una pregunta de trivia totalmente aleatoria. La pregunta debe ser de dificultad '" + dificultad + "', de cultura general. \n"
                 + "Puede ser de cualquier tema (Por ejemplo equipos de fútbol, música general, ciencia, naturaleza, etc.). Es necesario que el enunciado o pregunta no sea muy larga. Está prohibido que en las opciones se incluyan pistas. Debe estar en formato JSON con las siguientes claves: "
                 + "{ \"idPregunta\":\"" + this.obtenerLongAleatorioParaID() + "\", \"pregunta\": \"\", \"opcion_a\": \"\", \"opcion_b\": \"\", \"opcion_c\": \"\", "
-                + "\"respuesta_correcta\": \"\", \"tipo_pregunta\": \"OPCIONES\", \"dificultad\": \"MEDIO\", \"imagenURL\": \"\" } "
-                + "Llena cada campo correctamente. Cada caracter de la respuesta correcta debe coincidir exactamente con los de una de las opciones (opcion_a, opcion_b o opcion_c). No se debe incluir ningun texto más en la respuesta, solamente el JSON exacto. No debe tener saltos de línea. Considera consultar información verídica para generar una pregunta correcta, cuya respuesta correcta sea verdadera y totalmente comprobada";
+                + "\"respuesta_correcta\": \"\", \"tipo_pregunta\": \"OPCIONES\", \"dificultad\": \"\"+ " + dificultad + "\"\", \"imagenURL\": \"\" } "
+                + "Llena cada campo correctamente. Cada caracter de la respuesta correcta debe coincidir exactamente con los de una de las opciones (opcion_a, opcion_b o opcion_c). No se debe incluir ningun texto más en la respuesta, solamente el JSON exacto. " +
+                "No debe tener saltos de línea. Considera consultar información verídica para generar una pregunta correcta, " +
+                "cuya respuesta correcta sea verdadera y totalmente comprobada";
     }
 
 

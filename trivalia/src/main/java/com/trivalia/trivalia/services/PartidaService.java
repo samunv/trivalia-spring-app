@@ -1,13 +1,17 @@
 package com.trivalia.trivalia.services;
 
+import com.trivalia.trivalia.entities.PreguntasEntity;
 import com.trivalia.trivalia.entities.UsuarioEntity;
 import com.trivalia.trivalia.enums.Item;
 import com.trivalia.trivalia.enums.Operaciones;
 import com.trivalia.trivalia.model.PreguntaDTO;
 import com.trivalia.trivalia.model.RespuestaUsuarioDTO;
 import com.trivalia.trivalia.model.ResultadoPreguntaRespondidaDTO;
+import com.trivalia.trivalia.model.UsoDeIADTO;
 import com.trivalia.trivalia.services.interfaces.*;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 @Service
 public class PartidaService implements PartidaServiceInterface {
@@ -18,13 +22,15 @@ public class PartidaService implements PartidaServiceInterface {
     private final UsuarioPreguntaServiceInterface usuarioPreguntaService;
     private final ContadorServiceInterface contadorService;
     private final CalculadorServiceInterface calculadorService;
+    private UsoDeIAServiceInterface usoDeIAService;
 
     public PartidaService(UsuarioActualizarDatosServiceInterface usuarioActualizarDatosService,
                           UsuarioLecturaServiceInterface usuarioLecturaService,
                           PreguntaServiceInterface preguntasService,
                           UsuarioPreguntaServiceInterface usuarioPreguntaService,
                           ContadorServiceInterface contadorService,
-                          CalculadorServiceInterface calculadorService
+                          CalculadorServiceInterface calculadorService,
+                          UsoDeIAServiceInterface usoDeIAService
     ) {
         this.usuarioActualizarDatosService = usuarioActualizarDatosService;
         this.usuarioLecturaService = usuarioLecturaService;
@@ -32,6 +38,7 @@ public class PartidaService implements PartidaServiceInterface {
         this.usuarioPreguntaService = usuarioPreguntaService;
         this.contadorService = contadorService;
         this.calculadorService = calculadorService;
+        this.usoDeIAService = usoDeIAService;
     }
 
     public boolean jugarPartida(String uid) {
@@ -47,9 +54,14 @@ public class PartidaService implements PartidaServiceInterface {
         return false;
     }
 
-    public boolean continuarConMonedas(String uid) {
-        int monedasRequeridas = this.calculadorService.calcularCostoIASegunMonedasUsuario(uid);
-        return this.usuarioActualizarDatosService.descontarMonedas(uid, monedasRequeridas);
+    public boolean jugarIA(String uid) {
+        this.usoDeIAService.obtenerOGuardarUsoDeIA(uid);
+        if (this.usoDeIAService.verificarUsosRestantes(uid)) {
+            int monedasRequeridas = this.calculadorService.calcularCostoIASegunMonedasUsuario(uid);
+            return this.usuarioActualizarDatosService.descontarMonedas(uid, monedasRequeridas);
+
+        }
+        return false;
     }
 
 
